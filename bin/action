@@ -12,7 +12,7 @@ cd $dbdir
 
 rx='(.+)_(.+)'
 
-cur=
+curaddr=
 for file in *_*
 do
   [ -f $file ] || continue
@@ -21,10 +21,10 @@ do
   sshpid=${BASH_REMATCH[2]}
   s=$(stat --printf=%Y $file)
   log $(printf "%-16s   %s\n" $address  "$(date -d @$s)")
-  if [ $address != "$cur" ]
+  if [ $address != "$curaddr" ]
   then
-    cur=$address
-    log checking $cur
+    curaddr=$address
+    log checking $curaddr
     n=0
   fi
   n=$((n+1))
