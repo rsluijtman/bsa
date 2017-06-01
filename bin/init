@@ -1,0 +1,32 @@
+[ -n "$_init_" ] && return
+_init_=1
+
+prog=${0##*/}
+prog=${prog%.*}
+
+[ -z "$path" ] && path='.'
+
+#   basedir
+#    |   |
+# path/$prog/bin
+#           /log
+
+rx='^(/.*)/bin$'
+if [[ $path =~ $rx ]]
+then
+  basedir=${BASH_REMATCH[1]}
+  bindir=$basedir/bin
+else
+  basedir=./
+  bindir=$basedir
+fi
+
+dbdir=$basedir/db
+
+for dir in $dbdir $logdir
+do
+  [ -d $dir ] || mkdir -p $dir
+done
+
+hostname=$(hostname)
+hostname=${hostname%%.*}

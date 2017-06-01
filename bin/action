@@ -1,0 +1,37 @@
+#!/bin/bash
+
+path=$(which $0)
+path=${path%/*}
+
+. $path/init
+. $bindir/loglib
+. $bindir/block
+
+
+cd $dbdir
+
+rx='(.+)_(.+)'
+
+cur=
+for file in *_*
+do
+  [ -f $file ] || continue
+  [[ $file =~ $rx ]] || { echo no match: $file ; exit 1 ; }
+  address=${BASH_REMATCH[1]}
+  sshpid=${BASH_REMATCH[2]}
+  s=$(stat --printf=%Y $file)
+  log $(printf "%-16s   %s\n" $address  "$(date -d @$s)")
+  if [ $address != "$cur" ]
+  then
+    cur=$address
+    log checking $cur
+    n=0
+  fi
+  n=$((n+1))
+  if [ $n -gt 5 ]
+  then
+    block $address
+    rm $address_?*
+  fi
+done
+

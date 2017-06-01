@@ -1,0 +1,7 @@
+
+record(){
+  address=$1
+  sshpid=$2
+  touch $dbdir/${address}_$sshpid
+  log recording $address $sshpid
+}

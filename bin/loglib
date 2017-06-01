@@ -1,0 +1,58 @@
+[ -n "$_loglib_" ] && return
+_loglib_=1
+
+# source init to define basedir
+
+if [ -z "$path" ]
+then
+  path=${0%/*}
+  [ -z "$path" ] && path = '.'
+fi
+. $path/init
+
+logdir=$basedir/log
+[ -d $logdir ] || mkdir $logdir
+logfile=$logdir/$prog.log
+exec >> $logfile
+exec 2>&1
+
+prev=
+pnr=0
+sameloggedlines=0
+log(){
+  cur="$@"
+  if [ "$cur" = "$prev" ]
+  then
+    sameloggedlines=$((sameloggedlines+1))
+    return
+  fi  
+
+  if [ -n "$prev" ]
+  then
+    l="$(date) ($pnr): $prev"
+    if [ $sameloggedlines -gt 1 ]
+    then
+      echo $l "($sameloggedlines times)"
+    else
+      echo $l
+    fi
+  fi
+  sameloggedlines=1
+  prev=$cur
+  # only line number
+  set -- $(caller)
+  pnr=$1
+}
+
+logfinish(){
+  if [ -n "$prev" ]
+  then
+    l="$(date) ($pnr): $prev"
+    if [ $sameloggedlines -gt 1 ]
+    then
+      echo $l "($sameloggedlines times)"
+    else
+      echo $l
+    fi
+  fi
+}

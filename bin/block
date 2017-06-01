@@ -1,0 +1,43 @@
+
+get_ext(){
+  set -- $(/usr/sbin/ip route list |grep default)
+  if [ "$1" = default ]
+  then
+    echo "$5"
+  else
+    echo
+  fi
+}
+
+
+testres(){
+  res=$1
+  shift
+  cmd="$*"
+  [ $res = 0 ] && return
+
+  log res: $res
+  log failed command:
+  log cmd: $cmd
+
+  cat << EOF | mail -s 'cmd failed' rws
+$(date)
+$cmd
+EOF
+
+}
+
+
+block(){
+  address=$1
+  ext=$(get_ext)
+  log blocking $address on $ext
+  cmd="$iptables --append ssh --in-interface $ext --source $address --jump DROP"
+  log "$cmd"
+  ipto=$($cmd)
+  res=$?
+  log iptables command output: $ipto
+  log res: $res
+  testres $res "$cmd"
+}
+

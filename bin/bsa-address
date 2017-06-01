@@ -1,0 +1,301 @@
+#!/bin/bash
+# $Id: bsa,v 1.27 2016/11/16 13:36:28 rws Exp $
+# file: bsa
+# Time-stamp: <2014-01-02 10:49:38 rws>
+
+# move to configfile?
+db=/usr/local/bsa/db/bsa.db
+maxcount=5
+mintime=$((3600*24))
+
+iptables=/sbin/iptables
+sql=/usr/bin/sqlite3
+
+prog=$0
+hostname=$(hostname)
+hostname=${hostname%%.*}
+prog=${prog##*/}
+prog=${prog%.*}
+
+logfile=/var/log/$prog.log
+if [ -z "$1" ]
+then
+  exec >> $logfile || { log unable to open logfile ; exit 1 ; }
+fi
+
+exec 2>&1
+#set -x
+
+# disable pathname expansion
+set -f
+
+
+prev=
+pnr=0
+sameloggedlines=0
+log(){
+  cur="$@"
+  x=$(caller)
+  if [ "$cur" = "$prev" ]
+  then
+    sameloggedlines=$((sameloggedlines+1))
+    return
+  fi  
+  # only line number
+  set -- $x
+  n=$1
+  l="$(date) ($pnr): $prev"
+  if [ $sameloggedlines -gt 1 ]
+  then
+    echo $l "($sameloggedlines times)"
+  else
+    echo $l
+  fi
+  sameloggedlines=1
+  prev=$cur
+  pnr=$n
+}
+
+testres(){
+  res=$1
+  shift
+  cmd="$*"
+  [ $res = 0 ] && return
+
+  log res: $res
+  log failed command:
+  log cmd: $cmd
+  
+  cat << EOF | mail -s 'cmd failed' rws
+$(date)
+$cmd
+EOF
+
+}
+
+get_ext(){
+  set -- $(/usr/sbin/ip route list |grep default)
+  if [ "$1" = default ]
+  then
+    echo "$5"
+  else
+    echo
+  fi
+}
+
+
+block(){
+  address=$1
+  ext=$(get_ext)
+  log blocking $address on $ext
+  cmd="$iptables --append ssh --in-interface $ext --source $address --jump DROP"
+  log "$cmd"
+  ipto=$($cmd)
+  res=$?
+  log iptables command output: $ipto
+  log res: $res
+  testres $res "$cmd"
+}
+
+logcounts() {
+
+  for (( i=0 ; i < ${#rxign[*]} ; i++ ))
+  do
+    j=$((i+1)) 
+    i=$((i+2))
+    printf "%3d %s\n" ${rxign[$i]} ${rxign[$j]}
+  done
+}
+
+rotate() {
+#  set -x
+  set -- $(ls -l $logfile)
+  [ $5 -gt 1000000 ] || { set +x ; return 0 ; }
+  logcounts
+  log $(date): rotating
+
+  exec > /dev/null
+  i=5
+  while [ $i -gt 1 ]
+  do
+    j=$(($i-1))
+    if [ -f $logfile.$j ]
+    then
+      mv $logfile.$j $logfile.$i
+    fi
+    i=$j
+  done
+  mv $logfile $logfile.1
+  exec > $logfile
+  log $(date): rotated
+#  set +x
+}
+
+rmpidfile(){
+  logcounts
+  log $(date): exiting
+  rm $pidfile
+}
+
+
+
+update_count_and_block(){
+  address=$1
+  set -- $($sql -separator ' ' $db "select * from noted where ip='$address'")
+  now=$(date +%s)
+  earlier=$3
+  if [ -z "$1" ]
+  then
+    log adding new address $address
+    $sql $db "insert into noted values ( '$address', 1, $now );"
+  elif [ $((now - earlier)) -lt $mintime ]
+  then
+    log found $address: $2 $3, difftime: $(($now-$3))
+    count=$2
+    count=$((count+1))
+    log new count: $count
+    if [ $count -lt $maxcount ]
+    then
+      log updating count for $address to $count
+      log $sql $db "update noted set count=$count, date=$now where ip='$address';"
+      $sql $db "update noted set count=$count, date=$now where ip='$address';"
+    else
+      log deleting $address from noted
+      $sql $db "delete from noted where ip='$address';"
+      result=$($sql $db "select * from blocked where ip='$address';")
+      if [ -z "$result" ]
+      then
+        log inserting $address in blocked
+        $sql $db "insert into blocked values ('$address',$now);"
+        block $address
+      else
+        log $address is already blocked, updating db
+        $sql $db "update blocked set date=$now where ip='$address';"
+        block $address
+      fi
+    fi
+  else
+    log resetting count for $address, difftime $((now - earlier)), mintime: $mintime
+    $sql $db "update noted set count=1, date=$now where ip='$address';"
+  fi
+}
+
+check_sshpid(){
+  sshpid=$1
+  time=$($sql $db "select date from sshd where pid=$sshpid;")
+  return "$time"
+}
+  
+store_sshpid(){
+  sshpid=$1
+  time=$($sql $db "select date from sshd where pid=$sshpid;")
+  [ -n "$time" ] && { log "sshpid $sshpid already logged" ; return ; }
+  log storing sshpid $sshpid now $now
+  $sql $db "insert into sshd values ( $sshpid, $now );" 
+}
+ 
+log starting
+
+pidfile=/var/run/$prog.pid
+echo $$ > $pidfile || { log unable to write pid to $pidfile ; exit 1 ; }
+
+ppid=$(ps h -p $$ -o ppid)
+
+trap rotate SIGHUP
+trap rmpidfile EXIT
+trap logcounts USR1
+
+ext=$(get_ext)
+
+audrx=' '$hostname' audit: '
+pfxrx=' '$hostname' postfix\/'
+
+# rxign, array met regexps to be ignored, steeds 2 strings en teller,
+# reg expr wordt: hostname string1, gelogd met string2, teller wordt 
+# opgehoogd bij gebruik, om volgorde te gaan bepaled
+
+rxign=( 
+        'CROND\[[0-9]+\]:' crond 0
+        'audit: ' audit 0
+        'dnf:' dnf 0
+        'polkitd\[[0-9]+\]:' polkitd 0
+        'postfix\/' postfix 0
+        'run-parts\[[0-9]+\]:' run-parts 0
+        'systemd:' systemd 0
+        'wpa_supplicant\[[0-9]+\]:' wpa_supplicant 0
+      )       
+
+sshrx=$hostname' sshd\[([0-9]+)\]'
+
+iprx='([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})'
+rx=('sshd\[.* '$iprx' .*\[preauth\]'
+    'sshd\[.* Did not receive identification string from '$iprx
+    'sshd\[.* User .* from '$iprx' not allowed because not listed in AllowUsers'
+    'sshd\[.* Bad protocol version identification .* from '$iprx' port')
+# count all, also from same sshd
+
+allrx=(
+       'sshd\[.* Failed password for .* from '$iprx' port'
+       'sshd\[.* Invalid user .* from '$iprx
+      )
+
+while :
+do
+  log starting read loop
+  parent=$(ps h -p $ppid -o comm)
+  log "parent: $parent"
+  [ "$parent" = rsyslogd ] || { log parent died, exiting ; exit 1 ; }
+  while read line
+  do
+    for (( i=0 ; i < ${#rxign[*]} ; i++ ))
+    do
+      # log "i: $i rxign: ${rxign[$i]}"
+      irx=" $hostname ${rxign[$i]}"
+      i=$((i+2))
+      if [[ $line =~ $irx ]]
+      then
+        # log $line
+        # i=$((i+1)) # ; log ${rxign[$i]}
+        # increase counter 
+        rxign[$i]=$(( ${rxign[$i]} + 1 ))
+        continue 2
+      fi
+    done
+
+    log $line
+    [[ $line =~ $sshrx ]] || { log "no match sshd rx"; continue ; }
+    sshpid=${BASH_REMATCH[1]}
+
+    for (( i=0 ; i < ${#allrx[*]} ; i++ ))
+    do
+      [[ $line =~ ${allrx[$i]} ]] && break
+    done
+
+    if [ $i -lt ${#allrx[*]} ]
+    then
+      update_count_and_block ${BASH_REMATCH[1]}
+      store_sshpid $sshpid
+    else
+      time=$($sql $db "select date from sshd where pid=$sshpid;")
+      [ -n "$time" ] && { log "sshpid $sshpid already logged" ; continue ; }
+      for (( i=0 ; i < ${#rx[*]} ; i++ ))
+      do
+        [[ $line =~ ${rx[$i]} ]] && break
+      done
+      #  match
+      if [ $i -lt ${#rx[*]} ]
+      then
+        address=${BASH_REMATCH[1]}
+        log matching $i ${rx[$i]}
+        log $address
+        update_count_and_block $address
+        store_sshpid $sshpid
+      else
+        log no match
+      fi
+    fi
+    rotate
+    log end read loop
+  done
+  log 'end while : loop'
+done

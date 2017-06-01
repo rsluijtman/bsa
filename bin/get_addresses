@@ -1,0 +1,54 @@
+#!/bin/bash
+
+exec >> /tmp/bsa.log
+exec 2>&1
+echo untill switching to real logfile
+
+path=$(type -p $0)
+path=${path%/*}
+[ -z "$path" ] && path='.'
+. $path/init
+
+. $bindir/loglib
+. $bindir/record
+
+sshrx=$hostname' sshd\[([0-9]+)\]'
+
+iprx='([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})'
+rx=(
+     'sshd\[.* '$iprx' .*\[preauth\]'
+     'sshd\[.* Did not receive identification string from '$iprx
+     'sshd\[.* User .* from '$iprx' not allowed because not listed in AllowUsers'
+     'sshd\[.* Bad protocol version identification .* from '$iprx' port'
+     'sshd\[.* Failed password for .* from '$iprx' port'
+     'sshd\[.* Invalid user .* from '$iprx
+    )
+
+log starting $prog
+
+while :
+do
+  log starting read loop
+  while read line
+  do
+    [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
+    log $line
+    sshpid=${BASH_REMATCH[1]}
+
+    for (( i=0 ; i < ${#rx[*]} ; i++ ))
+    do
+      [[ $line =~ ${rx[$i]} ]] && break
+    done
+
+    if [ $i -lt ${#rx[*]} ]
+    then
+      record ${BASH_REMATCH[1]} $sshpid
+    else
+      log no match
+    fi
+    # log end read loop
+  done
+  log 'end while : loop'
+  break
+done
+logfinish
