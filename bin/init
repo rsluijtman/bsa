@@ -22,8 +22,9 @@ else
 fi
 
 dbdir=$basedir/db
+blkdir=$dbdir/blocked
 
-for dir in $dbdir $logdir
+for dir in $dbdir $logdir $blkdir
 do
   [ -d $dir ] || mkdir -p $dir
 done
