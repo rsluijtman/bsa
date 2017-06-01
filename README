@@ -1,0 +1,11 @@
+bsa, block ssh attack
+
+block addresses from connection after several failed login attempts
+
+split functionality: isolate code for inserting of firewall rules from
+code that determines that an address has to be blocked
+
+get address
+check database
+block
+management, eg logfile rotation
