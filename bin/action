@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=$(which $0)
+path=$(type -p $0)
 path=${path%/*}
 
 . $path/init
