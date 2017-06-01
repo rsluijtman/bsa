@@ -13,3 +13,7 @@ action
 
 rm_addresses
  removes recorded addresses after certain time
+
+
+keep in mind that recording of addresses is now done as files, but 
+may be moved to a database, so keep record functions nicely separated.
