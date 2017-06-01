@@ -5,3 +5,12 @@ record(){
   touch $dbdir/${address}_$sshpid
   log recording $address $sshpid
 }
+
+
+record_block(){
+  address=$1
+  [ -d "$blkdir" ] || { echo no blkdir ; exit 1 ; }
+  touch $blkdir/$address
+  log recording block $address
+}
+

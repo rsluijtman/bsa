@@ -41,16 +41,3 @@ block(){
   testres $res "$cmd"
   record_block $address
 }
-
-record_block(){
-  address=$1
-  if [ -z "$blkdir" ]
-  then
-    log blkdir not defined
-    p=$(type -p $0)
-    p=${p%/*}
-    . ${p:-.}/init
-  fi
-  touch $blkdir/$address
-}
-
