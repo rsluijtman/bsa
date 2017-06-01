@@ -11,14 +11,14 @@ prog=${prog%.*}
 # path/$prog/bin
 #           /log
 
-rx='^(/.*)/bin$'
+rx='^(.+)/bin$'
 if [[ ${path:-.} =~ $rx ]]
 then
   basedir=${BASH_REMATCH[1]}
   bindir=$basedir/bin
 else
-  basedir=./
-  bindir=$basedir
+  echo could not find bindir
+  exit 1
 fi
 
 dbdir=$basedir/db
