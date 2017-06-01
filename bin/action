@@ -3,12 +3,19 @@
 path=$(type -p $0)
 path=${path%/*}
 
+if [ -z "$path" -o ! -d "$path" ]
+then
+  echo could not find working dir
+  exit 1
+fi
+ 
+
 . $path/init
 . $bindir/loglib
 . $bindir/block
 
 
-cd $dbdir
+cd $dbdir || exit 1
 
 rx='(.+)_(.+)'
 
