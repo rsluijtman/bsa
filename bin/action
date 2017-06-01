@@ -31,8 +31,6 @@ do
   if [ $n -gt 5 ]
   then
     block $address
-    rm ${address}_?*
-    record_block $address
   fi
 done
 
