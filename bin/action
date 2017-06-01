@@ -31,7 +31,7 @@ do
   if [ $n -gt 5 ]
   then
     block $address
-    rm $address_?*
+    rm ${address}_?*
   fi
 done
 
