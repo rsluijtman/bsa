@@ -6,13 +6,16 @@ path=${path%/*}
 . $path/init
 . $bindir/loglib
 
+trap logfinish 0
+
 log $prog
 
 realy=1
 
-cd $ntdir || { echo no ntdir ; exit 1 }
+cd $ntdir || { log no ntdir, exiting ; exit 1 ; }
 
 maxage=7200
+latest=0
 for addr in *
 do
   [ -d $addr ] || { log no $addr ; continue ; }
@@ -26,7 +29,7 @@ do
   if [ $age -gt $maxage ]
   then
     log rm $addr
-    if [ $realy = 1 ] 
+    if [ $realy = 1 ]
     then
       rm -r $addr
     else
@@ -34,4 +37,3 @@ do
     fi
   fi
 done
-logfinish
