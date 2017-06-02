@@ -1,3 +1,5 @@
+[ -n "$_record_" ] && return
+_record_=1
 
 record_noted(){
   address=$1
