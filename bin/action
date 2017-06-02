@@ -13,7 +13,11 @@ fi
 . $path/init
 . $bindir/loglib
 . $bindir/block
+. $bindir/record
 
+trap logfinish 0
+
+log $prog
 
 cd $ntdir || exit 1
 
@@ -24,7 +28,7 @@ do
   if [ $# -gt 5 ]
   then
     block $address
-    remove_note
+    remove_note $address
   fi
 done
 
