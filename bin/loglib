@@ -13,7 +13,7 @@ fi
 logdir=$basedir/log
 [ -d $logdir ] || mkdir $logdir
 logfile=$logdir/$prog.log
-exec >> $logfile
+[ -t 0 ] || exec >> $logfile
 exec 2>&1
 
 prev=
