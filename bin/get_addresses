@@ -1,4 +1,4 @@
-#!/bin/bash
+d!/bin/bash
 
 exec >> /tmp/bsa.log
 exec 2>&1
@@ -42,7 +42,7 @@ do
 
     if [ $i -lt ${#rx[*]} ]
     then
-      record ${BASH_REMATCH[1]} $sshpid
+      record_noted ${BASH_REMATCH[1]} $sshpid
     else
       log no match
     fi
