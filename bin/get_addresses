@@ -1,4 +1,4 @@
-d!/bin/bash
+#!/bin/bash
 
 exec >> /tmp/bsa.log
 exec 2>&1
