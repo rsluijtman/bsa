@@ -10,54 +10,28 @@ log $prog
 
 realy=1
 
-cd $dbdir
+cd $ntdir || { echo no ntdir ; exit 1 }
 
-rx='(.+)_(.+)'
-
-maxage=3600
-curaddr=
-for file in *_*
+maxage=7200
+for addr in *
 do
-  [ -f $file ] || { log no $file ; continue ; }
-  [[ $file =~ $rx ]] || { echo no match: $file ; exit 1 ; }
-  address=${BASH_REMATCH[1]}
-  sshpid=${BASH_REMATCH[2]}
-  stamp=$(stat --printf=%Y $file)
-  log $(printf "%-16s   %s\n" $address  "$(date -d @$stamp)")
-  if [ $address != "$curaddr" ]
-  then
-    if [ -n "$curaddr" ]
-    then
-      age=$(( $(date +%s) - $latest ))
-      if [ $age -gt $maxage ]
-      then
-        log rm ${curaddr}_?*
-        if [ $realy = 1 ] 
-        then
-          rm ${curaddr}_?*
-        else
-          echo would rm ${curaddr}_?*
-        fi
-      fi
-    fi
-    curaddr=$address
-    latest=0
-    log checking $curaddr
-  fi
-  [ $stamp -gt $latest ] && latest=$stamp
-done
-if [ -f "$file" ]
-then
+  [ -d $addr ] || { log no $addr ; continue ; }
+  for file in $addr/*
+  do
+    stamp=$(stat --printf=%Y $file)
+    log $(printf "%-16s   %s\n" $file  "$(date -d @$stamp)")
+    [ $stamp -gt $latest ] && latest=$stamp
+  done
   age=$(( $(date +%s) - $latest ))
   if [ $age -gt $maxage ]
   then
-    log rm ${curaddr}_?*
+    log rm $addr
     if [ $realy = 1 ] 
     then
-      rm ${curaddr}_?*
+      rm -r $addr
     else
-      echo would rm ${curaddr}_?*
+      log would rm $addr
     fi
   fi
-fi
+done
 logfinish
