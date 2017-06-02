@@ -15,29 +15,16 @@ fi
 . $bindir/block
 
 
-cd $dbdir || exit 1
+cd $ntdir || exit 1
 
-rx='(.+)_(.+)'
-
-curaddr=
-for file in *_*
+for address in *
 do
-  [ -f $file ] || continue
-  [[ $file =~ $rx ]] || { echo no match: $file ; exit 1 ; }
-  address=${BASH_REMATCH[1]}
-  sshpid=${BASH_REMATCH[2]}
-  s=$(stat --printf=%Y $file)
-  log $(printf "%-16s   %s\n" $address  "$(date -d @$s)")
-  if [ $address != "$curaddr" ]
-  then
-    curaddr=$address
-    log checking $curaddr
-    n=0
-  fi
-  n=$((n+1))
-  if [ $n -gt 5 ]
+  [ -d $address ] || continue
+  set -- $address/*
+  if [ $# -gt 5 ]
   then
     block $address
+    remove_note
   fi
 done
 

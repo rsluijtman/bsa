@@ -23,6 +23,7 @@ fi
 
 dbdir=$basedir/db
 blkdir=$dbdir/blocked
+ntdir=$dbdir/noted
 
 for dir in $dbdir $logdir $blkdir
 do

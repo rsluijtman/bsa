@@ -1,8 +1,9 @@
 
-record(){
+record_noted(){
   address=$1
   sshpid=$2
-  touch $dbdir/${address}_$sshpid
+  [ -d $dbdir/noted/$address ] || mkdir -p $dbdir/noted/$address
+  touch $dbdir/noted/$address/$sshpid
   log recording $address $sshpid
 }
 
@@ -12,5 +13,13 @@ record_block(){
   [ -d "$blkdir" ] || { echo no blkdir ; exit 1 ; }
   touch $blkdir/$address
   log recording block $address
+}
+
+remove_note(){
+  address=$1
+  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -d "$ntdir/$address" ] || { log no ntdir/address ; exit 1 ; }
+  rm -rf $ntdir/$address
+  log rm $ntdir/$address
 }
 
