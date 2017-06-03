@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=$(which $0)
+path=$(type -p $0)
 path=${path%/*}
 
 . $path/init
@@ -16,6 +16,7 @@ cd $ntdir || { log no ntdir, exiting ; exit 1 ; }
 
 maxage=7200
 latest=0
+now=$(date +%s)
 for addr in *
 do
   [ -d $addr ] || { log no $addr ; continue ; }
@@ -25,7 +26,7 @@ do
     log $(printf "%-16s   %s\n" $file  "$(date -d @$stamp)")
     [ $stamp -gt $latest ] && latest=$stamp
   done
-  age=$(( $(date +%s) - $latest ))
+  age=$(( $now - $latest ))
   if [ $age -gt $maxage ]
   then
     log rm $addr
