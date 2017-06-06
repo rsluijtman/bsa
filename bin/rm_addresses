@@ -14,19 +14,21 @@ realy=1
 
 cd $ntdir || { log no ntdir, exiting ; exit 1 ; }
 
-maxage=7200
-latest=0
+maxage=43200  # 12*3600
 now=$(date +%s)
 for addr in *
 do
   [ -d $addr ] || { log no $addr ; continue ; }
+  latest=0
   for file in $addr/*
   do
     stamp=$(stat --printf=%Y $file)
-    log $(printf "%-16s   %s\n" $file  "$(date -d @$stamp)")
+    log $file $(date -d @$stamp)
     [ $stamp -gt $latest ] && latest=$stamp
+    log $latest $stamp
   done
   age=$(( $now - $latest ))
+  log $age
   if [ $age -gt $maxage ]
   then
     log rm $addr
