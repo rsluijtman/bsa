@@ -23,13 +23,16 @@ eventrx=(
      'sshd\[.* Invalid user .* from '$iprx
     )
 
-increasecountrx = (
+increasecountrx=(
      'sshd\[.* Failed password for .* from '$iprx' port'
     )
 
 log starting $prog
 
 log starting read loop
+while :
+do
+
 while read line
 do
   [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
@@ -54,4 +57,7 @@ do
     fi 
   done
 done
+
+done
+
 logfinish
