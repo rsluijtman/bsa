@@ -17,7 +17,7 @@ fi
 
 trap logfinish 0
 
-log $prog
+#log $prog
 
 cd $ntdir || exit 1
 
@@ -28,7 +28,7 @@ do
   if [ $# -gt 5 ]
   then
     block $address
-    remove_note $address
+    remove_record $address
   fi
 done
 
