@@ -1,7 +1,7 @@
 [ -n "$_record_" ] && return
 _record_=1
 
-record_noted(){
+record_noted_event(){
   address=$1
   sshpid=$2
   [ -d $dbdir/noted/$address ] || mkdir -p $dbdir/noted/$address
@@ -9,6 +9,19 @@ record_noted(){
   log recording $address $sshpid
 }
 
+record_noted_ip(){
+  address=$1
+  [ -d $dbdir/noted/$address ] || mkdir -p $dbdir/noted/$address
+
+  while :
+  do
+    record=$dbdir/noted/$address/$RANDOM
+    [ -f $record ] && continue
+    touch $record && break
+  done
+
+  log recording $address
+}
 
 record_block(){
   address=$1
@@ -17,7 +30,7 @@ record_block(){
   log recording block $address
 }
 
-remove_note(){
+remove_record(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
   [ -d "$ntdir/$address" ] || { log no ntdir/address ; exit 1 ; }
