@@ -15,40 +15,43 @@ path=${path%/*}
 sshrx=$hostname' sshd\[([0-9]+)\]'
 
 iprx='([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})'
-rx=(
+eventrx=(
      'sshd\[.* '$iprx' .*\[preauth\]'
      'sshd\[.* Did not receive identification string from '$iprx
      'sshd\[.* User .* from '$iprx' not allowed because not listed in AllowUsers'
      'sshd\[.* Bad protocol version identification .* from '$iprx' port'
-     'sshd\[.* Failed password for .* from '$iprx' port'
      'sshd\[.* Invalid user .* from '$iprx
+    )
+
+increasecountrx = (
+     'sshd\[.* Failed password for .* from '$iprx' port'
     )
 
 log starting $prog
 
-while :
+log starting read loop
+while read line
 do
-  log starting read loop
-  while read line
+  [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
+  log $line
+  sshpid=${BASH_REMATCH[1]}
+
+  for (( i=0 ; i < ${#increasecountrx[*]} ; i++ ))
   do
-    [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
-    log $line
-    sshpid=${BASH_REMATCH[1]}
-
-    for (( i=0 ; i < ${#rx[*]} ; i++ ))
-    do
-      [[ $line =~ ${rx[$i]} ]] && break
-    done
-
-    if [ $i -lt ${#rx[*]} ]
+    if [[ $line =~ ${increasecountrx[$i]} ]]
     then
-      record_noted ${BASH_REMATCH[1]} $sshpid
-    else
-      log no match
+      record_noted_ip ${BASH_REMATCH[1]}
+      continue 2
     fi
-    # log end read loop
   done
-  log 'end while : loop'
-  break
+
+  for (( i=0 ; i < ${#eventrx[*]} ; i++ ))
+  do
+    if [[ $line =~ ${eventrx[$i]} ]]
+    then
+      record_noted_event ${BASH_REMATCH[1]} $sshpid
+      break
+    fi 
+  done
 done
 logfinish
