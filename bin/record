@@ -15,7 +15,7 @@ record_noted_ip(){
 
   while :
   do
-    record=$dbdir/noted/$address/$RANDOM
+    record=$dbdir/noted/$address/r$RANDOM
     [ -f $record ] && continue
     touch $record && break
   done
