@@ -1,0 +1,53 @@
+#!/bin/bash
+
+path=$(type -p $0)
+path=${path%/*}
+
+. $path/init
+. $bindir/loglib
+
+get_ext(){
+  set -- $(/usr/sbin/ip route list |grep default)
+  if [ "$1" = default ]
+  then
+    echo "$5"
+  else
+    echo
+  fi
+}
+
+trap logfinish 0
+
+log $prog
+
+really=1
+
+cd $blkdir || { log no blkdir, exiting ; exit 1 ; }
+
+maxage=$(( 24*3600*14 ))
+now=$(date +%s)
+ext=$(get_ext)
+for addr in *
+do
+  stamp=$(stat --printf=%Y $addr)
+  age=$(( $now - $stamp ))
+  if [ $age -gt $maxage ]
+  then
+    if [ $really = 1 ]
+    then
+      log rm $addr
+      rm $addr
+    else
+      log would rm $addr
+    fi
+    iptables=/usr/sbin/iptables
+    cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
+    log "cmd: $cmd"
+    if [ $really = 1 ]
+    then
+      $cmd
+    else
+      log would $cmd
+    fi
+  fi
+done
