@@ -22,6 +22,11 @@ log $prog
 
 really=1
 
+if [ "$1" = -n ]
+then
+  really=0
+fi 
+
 cd $blkdir || { log no blkdir, exiting ; exit 1 ; }
 
 maxage=$(( 24*3600*14 ))
@@ -33,9 +38,9 @@ do
   age=$(( $now - $stamp ))
   if [ $age -gt $maxage ]
   then
+    echo unblocking $addr, blocked on $(date -d @$stamp)
     if [ $really = 1 ]
     then
-      log rm $addr
       rm $addr
     else
       log would rm $addr
