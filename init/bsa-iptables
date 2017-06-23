@@ -1,0 +1,35 @@
+#!/bin/bash
+
+firewall=/usr/local/bsa/init/firewall
+filterrules=/usr/local/bsa/init/filterrules
+
+start(){
+  $firewall start
+  $filterrules start
+}
+
+stop(){
+  $firewall stop
+  $filterrules stop
+}
+
+restart(){
+  stop
+  start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  reload|restart)
+    restart    
+    ;;
+  *)
+    echo "$0 start|stop|restart"
+    exit 1
+    ;;
+esac

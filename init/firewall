@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# chkconfig: 345 8 92
+# description: starts firewall
+
+iptables=/usr/sbin/iptables
+
+start() {
+  stop
+  $iptables --new-chain ssh
+  $iptables --new-chain smtp
+
+  RETVAL=0
+}
+
+stop() {
+  rx='Chain (.*) \('
+  $iptables -n -L | while read line
+    do
+      [[ $line =~ $rx ]] || continue
+      chain=${BASH_REMATCH[1]}
+      $iptables --flush $chain
+      case $chain in
+        INPUT|OUTPUT|FORWARD)
+          $iptables --policy $chain ACCEPT
+          ;;
+        *)
+          $iptables --delete-chain $chain
+          ;;
+      esac
+    done
+  RETVAL=0
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit $RETVAL

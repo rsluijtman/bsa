@@ -1,0 +1,31 @@
+#!/bin//bash
+
+# is wlanX configured?
+#  yes, then
+# is chain ssh configured
+#  no, then configure chain  ssh
+
+ip=/usr/sbin/ip
+
+get_ext(){
+  set -- $($ip route list |grep default)
+  if [ "$1" = default ]
+  then
+    echo "$5"
+  else
+    echo
+  fi
+}
+
+ext=$(get_ext)
+
+[ -z "$ext" ] && exit 0
+
+iptables=/usr/sbin/iptables
+egrep=/usr/bin/egrep
+
+$iptables -nL INPUT | $egrep -q '^ssh' && exit 0
+
+echo $0: configuring iptables for bsa
+/usr/local/bsa/init/firewall start
+/usr/local/bsa/init/filterrules start

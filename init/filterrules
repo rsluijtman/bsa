@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# chkconfig: 345 9 91
+# description: inserts filterrules
+
+ip=/usr/sbin/ip
+iptables=/usr/sbin/iptables
+
+get_ext(){
+  set -- $($ip route list |grep default)
+  if [ "$1" = default ]
+  then
+    echo "$5"
+  else
+    echo
+  fi
+}
+
+
+start() {
+  $iptables -m state --append INPUT --state RELATED,ESTABLISHED --jump ACCEPT
+  # log invalids
+  $iptables -m state --append INPUT --state invalid --jump DROP
+
+  # Local Traffic is always allowed
+  $iptables --append INPUT --in-interface lo --jump ACCEPT
+
+  ext=$(get_ext)
+  [ -z "$ext" ] && { RETVAL=1 ; return $RETVAL ; }
+
+  $iptables --append INPUT --in-interface $ext --proto tcp --destination-port 25 --jump smtp
+  $iptables --append INPUT --in-interface $ext --proto tcp --destination-port 25 --jump ACCEPT
+  $iptables --append INPUT --in-interface $ext --proto tcp --destination-port 80 --jump ACCEPT
+# imaps
+  $iptables --append INPUT --in-interface $ext --proto tcp --destination-port 993 --jump ACCEPT
+
+  # ssh, first rule jumps to ssh chain, were ssh-attackers are blocked.
+  # if the address is not there, processing returns here
+  $iptables --append INPUT --proto tcp --destination-port 22 --in-interface $ext --jump ssh
+  # second ssh rule, if the previous did not block it, accept it now
+  $iptables --append INPUT --proto tcp --destination-port 22 --in-interface $ext --jump ACCEPT
+  # same for 443
+  $iptables --append INPUT --proto tcp --destination-port 443 --in-interface $ext --jump ssh
+  $iptables --append INPUT --proto tcp --destination-port 443 --in-interface $ext --jump ACCEPT
+  RETVAL=0
+}
+
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    RETVAL=0
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit $RETVAL
+
