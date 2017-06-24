@@ -32,3 +32,23 @@ done
 
 hostname=$(hostname)
 hostname=${hostname%%.*}
+
+pathto(){
+  c=$1
+  p=$(type -p $c)
+  if [ -n "$p" ]
+  then
+    echo $p
+  elsif [ -x /sbin/$c ]
+    echo /sbin/$c
+  elsif [ -x /usr/sbin/$c ]
+    echo /usr/sbin/$c
+  elsif [ -x /usr/local/sbin/$c ]
+    echo /usr/local/sbin/$c
+  elsif [ -x /usr/local/bin/$c ]
+    echo /usr/local/bin/$c
+  else
+    log cannot find $c
+    exit 1
+  fi
+}
