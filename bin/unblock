@@ -7,7 +7,7 @@ path=${path%/*}
 . $bindir/loglib
 
 get_ext(){
-  set -- $(/usr/sbin/ip route list |grep default)
+  set -- $($(pathto ip) route list |grep default)
   if [ "$1" = default ]
   then
     echo "$5"
@@ -32,6 +32,7 @@ cd $blkdir || { log no blkdir, exiting ; exit 1 ; }
 maxage=$(( 24*3600*14 ))
 now=$(date +%s)
 ext=$(get_ext)
+iptables=$(pathto iptables)
 for addr in *
 do
   stamp=$(stat --printf=%Y $addr)
@@ -45,7 +46,6 @@ do
     else
       log would rm $addr
     fi
-    iptables=/usr/sbin/iptables
     cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
     log "cmd: $cmd"
     if [ $really = 1 ]
