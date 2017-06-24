@@ -1,3 +1,5 @@
+[ -n "$_block_" ] && return
+_block_=1
 
 get_ext(){
   set -- $($(pathto ip) route list |grep default)
