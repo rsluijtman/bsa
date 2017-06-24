@@ -40,12 +40,16 @@ pathto(){
   then
     echo $p
   elif [ -x /sbin/$c ]
+  then
     echo /sbin/$c
   elif [ -x /usr/sbin/$c ]
+  then
     echo /usr/sbin/$c
   elif [ -x /usr/local/sbin/$c ]
+  then
     echo /usr/local/sbin/$c
   elif [ -x /usr/local/bin/$c ]
+  then
     echo /usr/local/bin/$c
   else
     log cannot find $c
