@@ -1,6 +1,6 @@
 
 get_ext(){
-  set -- $(/usr/sbin/ip route list |grep default)
+  set -- $($(pathto ip) route list |grep default)
   if [ "$1" = default ]
   then
     echo "$5"
