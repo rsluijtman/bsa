@@ -34,7 +34,7 @@ remove_record(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
   [ -d "$ntdir/$address" ] || { log no ntdir/address ; exit 1 ; }
-  rm -rf $ntdir/$address
+  rm -r $ntdir/$address || log "rm $address failed"
   log rm $ntdir/$address
 }
 

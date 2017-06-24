@@ -27,6 +27,11 @@ do
   set -- $address/*
   if [ $# -gt 5 ]
   then
+    if [ ! -d $address ]
+    then
+      log $address without dir
+      continue
+    fi
     block $address
     remove_record $address
   fi
