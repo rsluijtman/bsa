@@ -39,13 +39,13 @@ pathto(){
   if [ -n "$p" ]
   then
     echo $p
-  elsif [ -x /sbin/$c ]
+  elif [ -x /sbin/$c ]
     echo /sbin/$c
-  elsif [ -x /usr/sbin/$c ]
+  elif [ -x /usr/sbin/$c ]
     echo /usr/sbin/$c
-  elsif [ -x /usr/local/sbin/$c ]
+  elif [ -x /usr/local/sbin/$c ]
     echo /usr/local/sbin/$c
-  elsif [ -x /usr/local/bin/$c ]
+  elif [ -x /usr/local/bin/$c ]
     echo /usr/local/bin/$c
   else
     log cannot find $c
