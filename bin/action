@@ -12,8 +12,6 @@ fi
 
 . $path/init
 . $bindir/loglib
-. $bindir/block
-. $bindir/record
 
 trap logfinish 0
 
@@ -32,6 +30,8 @@ do
       log $address without dir
       continue
     fi
+. $bindir/block
+. $bindir/record
     block $address
     remove_record $address
   fi
