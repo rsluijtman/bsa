@@ -27,8 +27,42 @@ record_noted(){
 remove_record(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
-  [ -d "$ntdir/$address" ] || { log no ntdir/address ; exit 1 ; }
+  [ -d "$ntdir/$address" ] || { log no $ntdir/$address ; exit 1 ; }
   rm -r $ntdir/$address || log "rm $address failed"
   log rm $ntdir/$address
 }
 
+# $1: time in seconds, return names of files that are older
+blocked_before(){
+  time=$1
+  bb=
+  for b in $blkdir/*
+  do
+    if [ $(stat --printf=%Y $b) -lt $time ]
+    then
+      bb="$bb ${b##*/}"
+    fi
+  done
+  echo $bb
+}
+
+# $1: address, return time of block
+blocking_date(){
+  address=$1
+  if [ -f $blkdir/$address ]
+  then
+    stat --printf=%Y $blkdir/$address
+  fi
+}
+
+remove_blocked(){
+  address=$1
+  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -f "$blkdir/$address" ] || { log no $blkdir/$address ; exit 1 ; }
+  if rm $blkdir/$address
+  then
+    log rm $blkdir/$address
+  else
+    log "rm $address failed"
+  fi
+}

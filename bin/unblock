@@ -5,6 +5,7 @@ path=${path%/*}
 
 . $path/init
 . $bindir/loglib
+. $bindir/record
 
 get_ext(){
   set -- $($ip route list | grep default)
@@ -27,31 +28,23 @@ then
   really=0
 fi 
 
-cd $blkdir || { log no blkdir, exiting ; exit 1 ; }
-
 maxage=$(( 24*3600*14 ))
 now=$(date +%s)
 ext=$(get_ext)
-for addr in *
+for addr in $(blocked_before $((now - maxage)) )
 do
-  stamp=$(stat --printf=%Y $addr)
-  age=$(( $now - $stamp ))
-  if [ $age -gt $maxage ]
+  # for cron
+  stamp=$(blocking_date $addr)
+  echo unblocking $addr, blocked on $(date -d @$stamp)
+
+  cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
+  if [ $really = 1 ]
   then
-    echo unblocking $addr, blocked on $(date -d @$stamp)
-    if [ $really = 1 ]
-    then
-      rm $addr
-    else
-      log would rm $addr
-    fi
-    cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
+    remove_blocked $addr
     log "cmd: $cmd"
-    if [ $really = 1 ]
-    then
-      $cmd
-    else
-      log would $cmd
-    fi
+    $cmd
+  else
+    log would remove_blocked $addr
+    log would $cmd
   fi
 done
