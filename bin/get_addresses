@@ -20,12 +20,13 @@ eventrx=(
      'sshd\[.* Did not receive identification string from '$iprx
      'sshd\[.* User .* from '$iprx' not allowed because not listed in AllowUsers'
      'sshd\[.* Bad protocol version identification .* from '$iprx' port'
-     'sshd\[.* Invalid user .* from '$iprx
      'sshd\[.* Received disconnect from '$iprx' .*\[preauth\]'
+     'sshd\[.* pam_unix\(sshd:auth\): authentication failure; .* rhost='$iprx
     )
 
 increasecountrx=(
      'sshd\[.* Failed password for .* from '$iprx' port'
+     'sshd\[.* Invalid user .* from '$iprx' port'
     )
 
 log starting $prog
