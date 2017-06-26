@@ -1,33 +1,27 @@
 [ -n "$_record_" ] && return
 _record_=1
 
-record_noted_event(){
-  address=$1
-  sshpid=$2
-  [ -d $dbdir/noted/$address ] || mkdir -p $dbdir/noted/$address
-  touch $dbdir/noted/$address/$sshpid
-  log recording $address $sshpid
-}
-
-record_noted_ip(){
-  address=$1
-  [ -d $dbdir/noted/$address ] || mkdir -p $dbdir/noted/$address
-
-  while :
-  do
-    record=$dbdir/noted/$address/r$RANDOM
-    [ -f $record ] && continue
-    touch $record && break
-  done
-
-  log recording $address
-}
-
 record_block(){
   address=$1
   [ -d "$blkdir" ] || { echo no blkdir ; exit 1 ; }
   touch $blkdir/$address
   log recording block $address
+}
+
+# addr: ip address
+# tag:  for not unique entry, sshpid, or empty, unique tag will be generated
+record_noted(){
+  address=$1
+  tag=$2
+  dir=$dbdir/noted/$address
+  [ -d $dir ] || mkdir -p $dir
+  while [ -z "$tag" ]
+  do
+    tst=r$RANDOM
+    [ -f $dir/$tst ] && tag=$tst
+  done
+  touch $dir/$tag 
+  log recording $address $tag
 }
 
 remove_record(){
