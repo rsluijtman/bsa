@@ -4,7 +4,7 @@ _init_=1
 prog=${0##*/}
 prog=${prog%.*}
 
-#path=${path:-.}
+adminmail=rws@sluijtman.space
 
 #   basedir
 #    |   |
@@ -56,3 +56,6 @@ pathto(){
     exit 1
   fi
 }
+ip=$(pathto ip)
+iptables=$(pathto iptables)
+
