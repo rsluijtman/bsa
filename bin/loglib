@@ -25,7 +25,7 @@ log(){
   then
     sameloggedlines=$((sameloggedlines+1))
     return
-  fi  
+  fi
 
   if [ -n "$prev" ]
   then

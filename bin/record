@@ -20,7 +20,7 @@ record_noted(){
     tst=r$RANDOM
     [ -f $dir/$tst ] && tag=$tst
   done
-  touch $dir/$tag 
+  touch $dir/$tag
   log recording $address $tag
 }
 

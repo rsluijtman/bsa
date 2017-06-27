@@ -56,7 +56,7 @@ do
     then
       record_noted ${BASH_REMATCH[1]} $sshpid
       continue 2
-    fi 
+    fi
   done
   log "no match: $line"
 done
