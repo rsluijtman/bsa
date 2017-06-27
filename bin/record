@@ -9,7 +9,7 @@ record_block(){
 }
 
 # addr: ip address
-# tag:  for not unique entry, sshpid, or empty, unique tag will be generated
+# tag: for not unique entry eg sshpid, or empty: a unique tag will be generated
 record_noted(){
   address=$1
   tag=$2
@@ -47,7 +47,7 @@ blocked_before(){
 }
 
 # $1: address, return time of block
-blocking_date(){
+block_time(){
   address=$1
   if [ -f $blkdir/$address ]
   then

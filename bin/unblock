@@ -34,7 +34,7 @@ ext=$(get_ext)
 for addr in $(blocked_before $((now - maxage)) )
 do
   # for cron
-  stamp=$(blocking_date $addr)
+  stamp=$(block_time $addr)
   echo unblocking $addr, blocked on $(date -d @$stamp)
 
   cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
