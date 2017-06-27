@@ -2,7 +2,7 @@
 _block_=1
 
 get_ext(){
-  set -- $($ip route list |grep default)
+  set -- $($ip route list | grep default)
   if [ "$1" = default ]
   then
     echo "$5"
