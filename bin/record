@@ -24,7 +24,7 @@ record_noted(){
   log recording $address $tag
 }
 
-remove_record(){
+mark_blocked(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
   [ -d "$ntdir/$address" ] || { log no $ntdir/$address ; exit 1 ; }

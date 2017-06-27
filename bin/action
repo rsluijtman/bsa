@@ -33,7 +33,7 @@ do
 . $bindir/block
 . $bindir/record
     block $address
-    remove_record $address
+    mark_blocked $address
   fi
 done
 
