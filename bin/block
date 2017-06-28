@@ -29,16 +29,25 @@ EOF
 
 }
 
-
-block(){
-  address=$1
+fwcmd(){
+  action=$1
+  address=$2
+  [ -z "$address" ] && { log empty address ; exit 1 ; } 
   ext=$(get_ext)
-  log blocking $address on $ext
-  cmd="$iptables --append ssh --in-interface $ext --source $address --jump DROP"
+  log ${action}ing $address on $ext
+  cmd="$iptables --$action ssh --in-interface $ext --source $address --jump DROP"
   log "$cmd"
   ipto=$($cmd)
   res=$?
   log iptables command output: $ipto
   log res: $res
   testres $res "$cmd"
+}
+
+block(){
+  fwcmd append $1
+}
+
+unblock(){
+  fwcmd delete $1
 }

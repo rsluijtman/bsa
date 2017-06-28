@@ -6,16 +6,7 @@ path=${path%/*}
 . $path/init
 . $bindir/loglib
 . $bindir/record
-
-get_ext(){
-  set -- $($ip route list | grep default)
-  if [ "$1" = default ]
-  then
-    echo "$5"
-  else
-    echo
-  fi
-}
+. $bindir/block
 
 trap logfinish 0
 
@@ -30,21 +21,16 @@ fi
 
 maxage=$(( 24*3600*14 ))
 now=$(date +%s)
-ext=$(get_ext)
 for addr in $(blocked_before $((now - maxage)) )
 do
-  # for cron
-  stamp=$(block_time $addr)
-  echo unblocking $addr, blocked on $(date -d @$stamp)
-
-  cmd="$iptables --delete ssh --in-interface $ext --source $addr --jump DROP"
   if [ $really = 1 ]
   then
+    unblock $addr
     remove_blocked $addr
-    log "cmd: $cmd"
-    $cmd
+    # for cron
+    stamp=$(block_time $addr)
+    echo unblocking $addr, blocked on $(date -d @$stamp)
   else
-    log would remove_blocked $addr
-    log would $cmd
+    log would unblock $addr
   fi
 done
