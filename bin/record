@@ -75,6 +75,7 @@ blocked_before(){
   bb=
   for b in $ntdir/*/blocked
   do
+    [ -f $b ] || continue
     if [ $(stat --printf=%Y $b) -lt $time ]
     then
       b=${b%/blocked}
