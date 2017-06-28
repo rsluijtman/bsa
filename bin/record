@@ -16,7 +16,7 @@ _record_=1
 
 record_noted(){
   address=$1
-  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -z "$address" ] && { log fatal: empty address ; exit 1 ; }
   tag=$2
   dir=$ntdir/$address
   [ -d $dir ] || mkdir -p $dir
@@ -60,9 +60,9 @@ attempts(){
 
 mark_blocked(){
   address=$1
-  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -z "$address" ] && { log fatal: empty address ; exit 1 ; }
   ntda=$ntdir/$address
-  [ -d $ntda ] || { log no $ntda ; exit 1 ; }
+  [ -d $ntda ] || { log fatal: no $ntda ; exit 1 ; }
   b=$ntda/blocked
   [ -f $b ] && { log already blocked $b ; return ; }
   touch $b
@@ -88,7 +88,7 @@ blocked_before(){
 # $1: address, return time of block
 block_time(){
   address=$1
-  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -z "$address" ] && { log fatal: empty address ; exit 1 ; }
   b=$ntdir/$address/blocked 
   if [ -f $b ]
   then
@@ -101,9 +101,9 @@ block_time(){
 
 remove_blocked(){
   address=$1
-  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  [ -z "$address" ] && { log fatal: empty address ; exit 1 ; }
   ntda=$ntdir/$address
-  [ -d $ntda ] || { log no $ntda ; exit 1 ; }
+  [ -d $ntda ] || { log fatal: no $ntda ; exit 1 ; }
   b=$ntda/blocked
   [ -f $b ] || { log not blocked, no $b ; return ; }
   if rm $ntda

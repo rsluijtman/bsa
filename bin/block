@@ -32,7 +32,7 @@ EOF
 fwcmd(){
   action=$1
   address=$2
-  [ -z "$address" ] && { log empty address ; exit 1 ; } 
+  [ -z "$address" ] && { log fatal: empty address ; exit 1 ; } 
   ext=$(get_ext)
   log ${action}ing $address on $ext
   cmd="$iptables --$action ssh --in-interface $ext --source $address --jump DROP"

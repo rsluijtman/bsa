@@ -12,7 +12,7 @@ log $prog
 
 realy=1
 
-cd $ntdir || { log no ntdir, exiting ; exit 1 ; }
+cd $ntdir || { log fatal: no ntdir, exiting ; exit 1 ; }
 
 maxage=43200  # 12*3600
 now=$(date +%s)
