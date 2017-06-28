@@ -1,45 +1,83 @@
 [ -n "$_record_" ] && return
 _record_=1
 
-record_block(){
-  address=$1
-  [ -d "$blkdir" ] || { echo no blkdir ; exit 1 ; }
-  touch $blkdir/$address
-  log recording block $address
-}
+# dir noted/address/ aNNNN   : created whith failed login attempt, sshpid or
+#                              random number
+#                    blocked : created when blocked, when maxtries attempts
+#                              were counted and address was blocked
+
+# so subdir noted could go (first version had dir blocked)
 
 # addr: ip address
 # tag: for not unique entry eg sshpid, or empty: a unique tag will be generated
+#
+# start with a: counted as attempts
+# start with b: blocked
+
 record_noted(){
   address=$1
+  [ -z "$address" ] && { log empty address ; exit 1 ; }
   tag=$2
-  dir=$dbdir/noted/$address
+  dir=$ntdir/$address
   [ -d $dir ] || mkdir -p $dir
-  while [ -z "$tag" ]
-  do
-    tst=r$RANDOM
-    [ -f $dir/$tst ] && tag=$tst
-  done
+  if [ -n "$tag" ]
+  then
+    tag=a$tag
+  else
+    while [ -z "$tag" ]
+    do
+      tst=ar$RANDOM
+      [ -f $dir/$tst ] && tag=$tst
+    done
+  fi
   touch $dir/$tag
   log recording $address $tag
+}
+
+noted_addresses(){
+  na=
+  for a in $ntdir/*
+  do
+    if [ -f $a/blocked ]
+    then
+      continue
+    fi
+    na="$na ${a##*/}"
+  done
+  echo $na
+}
+
+attempts(){
+  d=$ntdir/$1
+  if [ -d $d ]
+  then
+    set $d/a*
+    echo $#
+  else
+    echo 0
+  fi
 }
 
 mark_blocked(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
-  [ -d "$ntdir/$address" ] || { log no $ntdir/$address ; exit 1 ; }
-  rm -r $ntdir/$address || log "rm $address failed"
-  log rm $ntdir/$address
+  ntda=$ntdir/$address
+  [ -d $ntda ] || { log no $ntda ; exit 1 ; }
+  b=$ntda/blocked
+  [ -f $b ] && { log already blocked $b ; return ; }
+  touch $b
+  log touch $b
 }
 
 # $1: time in seconds, return names of files that are older
 blocked_before(){
   time=$1
   bb=
-  for b in $blkdir/*
+  for b in $ntdir/*/blocked
   do
     if [ $(stat --printf=%Y $b) -lt $time ]
     then
+      b=${b%/blocked}
       bb="$bb ${b##*/}"
     fi
   done
@@ -49,20 +87,28 @@ blocked_before(){
 # $1: address, return time of block
 block_time(){
   address=$1
-  if [ -f $blkdir/$address ]
+  [ -z "$address" ] && { log empty address ; exit 1 ; }
+  b=$blkdir/$address/blocked 
+  if [ -f $b ]
   then
-    stat --printf=%Y $blkdir/$address
+    stat --printf=%Y $b
+  else
+    log $address not blocked
+    echo ''
   fi
 }
 
 remove_blocked(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
-  [ -f "$blkdir/$address" ] || { log no $blkdir/$address ; exit 1 ; }
-  if rm $blkdir/$address
+  ntda=$ntdir/$address
+  [ -d $ntda ] || { log no $ntda ; exit 1 ; }
+  b=$ntda/blocked
+  [ -f $b ] || { log not blocked, no $b ; return ; }
+  if rm $ntda
   then
-    log rm $blkdir/$address
+    log rm $ntda
   else
-    log "rm $address failed"
+    log rm $address failed
   fi
 }
