@@ -89,7 +89,7 @@ blocked_before(){
 block_time(){
   address=$1
   [ -z "$address" ] && { log empty address ; exit 1 ; }
-  b=$blkdir/$address/blocked 
+  b=$ntdir/$address/blocked 
   if [ -f $b ]
   then
     stat --printf=%Y $b
