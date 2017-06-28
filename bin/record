@@ -27,7 +27,7 @@ record_noted(){
     while [ -z "$tag" ]
     do
       tst=ar$RANDOM
-      [ -f $dir/$tst ] && tag=$tst
+      [ -f $dir/$tst ] || tag=$tst
     done
   fi
   touch $dir/$tag
