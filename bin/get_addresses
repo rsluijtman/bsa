@@ -26,7 +26,7 @@ eventrx=(
 
 increasecountrx=(
      'sshd\[.* Failed password for .* from '$iprx' port'
-     'sshd\[.* Invalid user .* from '$iprx' port'
+     'sshd\[.* Invalid user .* from '$iprx
     )
 
 log starting $prog
