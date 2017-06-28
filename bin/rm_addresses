@@ -19,13 +19,12 @@ now=$(date +%s)
 for addr in *
 do
   [ -d $addr ] || { log no $addr ; continue ; }
+  [ -f $addr/blocked ] && continue
   latest=0
   for file in $addr/*
   do
     stamp=$(stat --printf=%Y $file)
-    log $file $(date -d @$stamp)
-    [ $stamp -gt $latest ] && latest=$stamp
-    log $latest $stamp
+    [ $stamp -gt $latest ] && { latest=$stamp ; log $file $latest ; }
   done
   age=$(( $now - $latest ))
   log $age
