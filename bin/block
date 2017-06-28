@@ -41,5 +41,4 @@ block(){
   log iptables command output: $ipto
   log res: $res
   testres $res "$cmd"
-  record_block $address
 }
