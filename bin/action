@@ -12,28 +12,18 @@ fi
 
 . $path/init
 . $bindir/loglib
+. $bindir/record
 
 trap logfinish 0
 
-#log $prog
+maxtries=5
 
-cd $ntdir || exit 1
-
-for address in *
+for address in $(noted_addresses)
 do
-  [ -d $address ] || continue
-  set -- $address/*
-  if [ $# -gt 5 ]
+  if [ $(attempts $address) -gt $maxtries ]
   then
-    if [ ! -d $address ]
-    then
-      log $address without dir
-      continue
-    fi
 . $bindir/block
-. $bindir/record
     block $address
     mark_blocked $address
   fi
 done
-
