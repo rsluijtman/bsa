@@ -12,6 +12,7 @@ b=$(ls */blocked | while read a ; do echo ${a%/blocked} ; done)
 #echo $b
 echo marked blocked
 ls -d $b
+echo '======================================='
 
 i=$($iptables -nL ssh | awk '/DROP/{print $4}')
 
@@ -20,6 +21,7 @@ echo in iptables
 ls -d $i
 
 
+echo '======================================='
 for a in $b 
 do
   found=0
@@ -47,6 +49,8 @@ do
   fi
 done
 
+echo '======================================='
+
 for a in *
 do
   [ -f $a/blocked ] && continue
@@ -56,6 +60,7 @@ do
   done
 done | uniq -c | sort -n
 
+echo '======================================='
 for a in */blocked
 do
   i=${a%/*}
