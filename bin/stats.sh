@@ -55,3 +55,12 @@ do
     echo ${i%/*}
   done
 done | uniq -c | sort -n
+
+for a in */blocked
+do
+  i=${a%/*}
+  for j in $i/a*
+  do
+    echo ${j%/*}
+  done
+done | uniq -c | sort -n
