@@ -46,3 +46,12 @@ do
     echo $j not marked blocked
   fi
 done
+
+for a in *
+do
+  [ -f $a/blocked ] && continue
+  for i in $a/a*
+  do
+    echo ${i%/*}
+  done
+done | uniq -c | sort -n
