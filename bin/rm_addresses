@@ -23,6 +23,7 @@ do
   latest=0
   for file in $addr/*
   do
+    [ -f $file ] || continue
     stamp=$(stat --printf=%Y $file)
     [ $stamp -gt $latest ] && { latest=$stamp ; log $file $latest ; }
   done
