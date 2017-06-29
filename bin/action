@@ -23,7 +23,12 @@ do
   if [ $(attempts $address) -gt $maxtries ]
   then
 . $bindir/block
-    block $address
-    mark_blocked $address
+    if block $address
+    then
+      mark_blocked $address
+    else
+      # iptables might be in use, do not mark as blocked, try again next time
+      log block $address failed
+    fi
   fi
 done

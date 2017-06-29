@@ -42,12 +42,15 @@ fwcmd(){
   log iptables command output: $ipto
   log res: $res
   testres $res "$cmd"
+  return $res
 }
 
 block(){
   fwcmd append $1
+  return $?
 }
 
 unblock(){
   fwcmd delete $1
+  return $?
 }
