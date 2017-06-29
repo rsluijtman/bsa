@@ -4,7 +4,7 @@ _init_=1
 prog=${0##*/}
 prog=${prog%.*}
 
-adminmail=rws@sluijtman.space
+adminmail=rws
 
 #   basedir
 #    |   |
