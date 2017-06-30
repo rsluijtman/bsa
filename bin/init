@@ -4,7 +4,7 @@ _init_=1
 prog=${0##*/}
 prog=${prog%.*}
 
-adminmail=rws
+adminmail=rws@sluijtman.nl
 
 #   basedir
 #    |   |
@@ -17,8 +17,15 @@ then
   basedir=${BASH_REMATCH[1]}
   bindir=$basedir/bin
 else
-  echo could not find bindir
-  exit 1
+  name=$0
+  if cmp ../bin/$name $name
+  then
+    basedir=..
+    bindir=../bin
+  else
+    echo could not find bindir
+    exit 1
+  fi
 fi
 
 dbdir=$basedir/db
