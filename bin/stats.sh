@@ -27,7 +27,7 @@ do
   found=0
   for j in $i
   do
-    [ $a = $j ] && { found=1 ; continue ; }
+    [ $a = $j ] && { found=1 ; continue 2 ; }
   done
   if [ $found = 0 ]
   then 
@@ -41,7 +41,7 @@ do
   found=0
   for a in $b 
   do
-    [ $a = $j ] && { found=1 ; continue ; }
+    [ $a = $j ] && { found=1 ; continue 2 ; }
   done
   if [ $found = 0 ]
   then 
