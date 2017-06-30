@@ -51,6 +51,7 @@ done
 
 echo '======================================='
 
+echo noted
 for a in *
 do
   [ -f $a/blocked ] && continue
@@ -61,6 +62,8 @@ do
 done | uniq -c | sort -n
 
 echo '======================================='
+
+echo blocked
 for a in */blocked
 do
   i=${a%/*}
