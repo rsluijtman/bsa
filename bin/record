@@ -106,7 +106,7 @@ remove_blocked(){
   [ -d $ntda ] || { log fatal: no $ntda ; exit 1 ; }
   b=$ntda/blocked
   [ -f $b ] || { log not blocked, no $b ; return ; }
-  if rm $ntda
+  if rm -r $ntda
   then
     log rm $ntda
   else
