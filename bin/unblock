@@ -25,11 +25,15 @@ for addr in $(blocked_before $((now - maxage)) )
 do
   if [ $really = 1 ]
   then
-    unblock $addr
-    remove_blocked $addr
-    # for cron
-    stamp=$(block_time $addr)
-    echo unblocking $addr, blocked on $(date -d @$stamp)
+    if unblock $addr
+    then
+      remove_blocked $addr
+      # for cron
+      stamp=$(block_time $addr)
+      echo unblocking $addr, blocked on $(date -d @$stamp)
+    else
+      log unblock failed
+    fi
   else
     log would unblock $addr
   fi
