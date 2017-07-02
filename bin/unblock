@@ -8,33 +8,69 @@ path=${path%/*}
 . $bindir/record
 . $bindir/block
 
-trap logfinish 0
-
-log $prog
-
-really=1
-
-if [ "$1" = -n ]
-then
-  really=0
-fi
-
-maxage=$(( 24*3600*14 ))
-now=$(date +%s)
-for addr in $(blocked_before $((now - maxage)) )
-do
+unblockandtest(){
+  address=$1
+  stamp=$(block_time $address)
   if [ $really = 1 ]
   then
-    if unblock $addr
+    if unblock $address
     then
-      remove_blocked $addr
-      # for cron
-      stamp=$(block_time $addr)
-      echo unblocking $addr, blocked on $(date -d @$stamp)
+      remove_blocked $address
     else
       log unblock failed
     fi
   else
-    log would unblock $addr
+    echo -n 'would '
   fi
+  echo unblocking $address, blocked on $(date -d @$stamp)
+}
+
+
+trap logfinish 0
+
+log $prog
+
+addresses=
+maxage=$(( 24*3600*14 ))
+really=1
+
+rx='^-?(.)(.*)'
+while [ $# -gt 0 ]
+do
+  p=$1
+  shift
+  while [[ $p =~ $rx ]]
+  do
+    o=${BASH_REMATCH[1]}
+    r=${BASH_REMATCH[2]}
+    case $o in
+      a)
+        addresses=$1
+        shift
+        ;;
+      m)
+        maxage=$1
+        shift
+        ;;
+      n)
+        really=0
+        ;;
+      *)
+        log unknown option $o
+        exit 1
+        ;;
+    esac
+    p=$r
+  done
+done
+
+if [ -z "$addresses" ]
+then
+  now=$(date +%s)
+  addresses=$(blocked_before $((now - maxage)) )
+fi
+
+for addr in $addresses
+do
+  unblockandtest $addr
 done
