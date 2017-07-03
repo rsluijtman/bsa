@@ -35,32 +35,30 @@ log starting read loop
 while :
 do
 
-while read line
-do
-  [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
-  log $line
-  sshpid=${BASH_REMATCH[1]}
-
-  for (( i=0 ; i < ${#increasecountrx[*]} ; i++ ))
+  while read line
   do
-    if [[ $line =~ ${increasecountrx[$i]} ]]
-    then
-      record_noted ${BASH_REMATCH[1]}
-      continue 2
-    fi
+    [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
+    log $line
+    sshpid=${BASH_REMATCH[1]}
+  
+    for (( i=0 ; i < ${#increasecountrx[*]} ; i++ ))
+    do
+      if [[ $line =~ ${increasecountrx[$i]} ]]
+      then
+        record_noted ${BASH_REMATCH[1]}
+        continue 2
+      fi
+    done
+  
+    for (( i=0 ; i < ${#eventrx[*]} ; i++ ))
+    do
+      if [[ $line =~ ${eventrx[$i]} ]]
+      then
+        record_noted ${BASH_REMATCH[1]} $sshpid
+        continue 2
+      fi
+    done
+    log "no match: $line"
   done
 
-  for (( i=0 ; i < ${#eventrx[*]} ; i++ ))
-  do
-    if [[ $line =~ ${eventrx[$i]} ]]
-    then
-      record_noted ${BASH_REMATCH[1]} $sshpid
-      continue 2
-    fi
-  done
-  log "no match: $line"
 done
-
-done
-
-logfinish
