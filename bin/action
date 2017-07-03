@@ -11,10 +11,7 @@ fi
 
 
 . $path/init
-. $bindir/loglib
 . $bindir/record
-
-trap logfinish 0
 
 maxtries=5
 
@@ -23,6 +20,7 @@ do
   if [ $(attempts $address) -gt $maxtries ]
   then
 . $bindir/block
+. $bindir/loglib
     if block $address
     then
       mark_blocked $address
