@@ -35,7 +35,7 @@ fwcmd(){
   [ -z "$address" ] && { log fatal: empty address ; exit 1 ; } 
   ext=$(get_ext)
   log ${action}ing $address on $ext
-  cmd="$iptables -w 10 --$action ssh --in-interface $ext --source $address --jump DROP"
+  cmd="$iptables --$action ssh --in-interface $ext --source $address --jump DROP"
   log "$cmd"
   ipto=$($cmd)
   res=$?
