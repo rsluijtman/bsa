@@ -56,3 +56,5 @@ logfinish(){
     fi
   fi
 }
+
+trap logfinish 0
