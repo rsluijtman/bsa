@@ -30,8 +30,12 @@ record_noted(){
       [ -f $dir/$tst ] || tag=$tst
     done
   fi
-  touch $dir/$tag
-  log recording $address $tag
+  if touch $dir/$tag
+  then
+    log recording $address $tag
+  else
+    log failed to record $address $tag
+  fi
 }
 
 noted_addresses(){
@@ -65,8 +69,12 @@ mark_blocked(){
   [ -d $ntda ] || { log fatal: no $ntda ; exit 1 ; }
   b=$ntda/blocked
   [ -f $b ] && { log already blocked $b ; return ; }
-  touch $b
-  log touch $b
+  if touch $b
+  then
+    log marked blocked $b
+  else
+    log failed to mark blocked $b
+  fi
 }
 
 # $1: time in seconds, return names of files that are older
