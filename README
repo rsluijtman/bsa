@@ -12,8 +12,19 @@ action
  checks recorded addresses and blocks them if appropriate
 
 rm_addresses
- removes recorded addresses after certain time
+ removes recorded addresses after certain amount of time
+ or, removes address mentiond with option -a
 
+unblock
+ removes recorded and blocked addresses after a certain amount of time
 
-keep in mind that recording of addresses is now done as files, but 
-may be moved to a database, so keep record functions nicely separated.
+others:
+
+stats.sh
+ shows:
+ - blocked addresses according record,
+ - addresses blocked by iptables, should  be the same as the recorded blocked addresses,
+ - the difference between the first 2, which should be empty.
+ - the noted addresses and frequency, which should be less then maxtries: if more the address is blocked by iptables and marked as blocked
+ - the addresses marked as blocked and number of times it has been recorded.
+      
