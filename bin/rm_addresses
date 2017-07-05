@@ -10,7 +10,12 @@ trap logfinish 0
 
 log $prog
 
-realy=1
+really=1
+
+if [ "$1" = '-n' ]
+then
+  really=0
+fi
 
 cd $ntdir || { log fatal: no ntdir, exiting ; exit 1 ; }
 
@@ -20,19 +25,13 @@ for addr in *
 do
   [ -d $addr ] || { log no $addr ; continue ; }
   [ -f $addr/blocked ] && continue
-  latest=0
-  for file in $addr/*
-  do
-    [ -f $file ] || continue
-    stamp=$(stat --printf=%Y $file)
-    [ $stamp -gt $latest ] && { latest=$stamp ; log $file $latest ; }
-  done
-  age=$(( $now - $latest ))
+  stamp=$(stat --printf=%Y $addr)
+  age=$(( now - stamp ))
   log $age
   if [ $age -gt $maxage ]
   then
     log rm $addr
-    if [ $realy = 1 ]
+    if [ $really = 1 ]
     then
       rm -r $addr
     else
