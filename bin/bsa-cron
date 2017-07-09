@@ -1,0 +1,21 @@
+#!/bin/bash
+
+exec >> /tmp/bsa-cron.log
+exec 2>&1
+echo '======================'
+date
+
+path=$(type -p $0)
+path=${path%/*}
+
+if [ -z "$path" -o ! -d "$path" ]
+then
+  echo could not find working dir
+  exit 1
+fi
+
+. $path/init
+
+. $path/checkfw
+
+. $path/action
