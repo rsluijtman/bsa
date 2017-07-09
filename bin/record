@@ -38,6 +38,19 @@ record_noted(){
   fi
 }
 
+noted_more_than(){
+  n=$1
+  na=
+  for a in $ntdir/*
+  do
+    [ -f $a/blocked ] && continue
+    set $a/a*
+    [ $# -gt $n ] && na="$na ${a##*/}"
+  done
+  echo $na
+}
+
+
 noted_addresses(){
   na=
   for a in $ntdir/*
