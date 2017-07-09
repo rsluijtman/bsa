@@ -15,18 +15,15 @@ fi
 
 maxtries=5
 
-for address in $(noted_addresses)
+for address in $(noted_more_than $maxtries)
 do
-  if [ $(attempts $address) -gt $maxtries ]
-  then
 . $bindir/block
 . $bindir/loglib
-    if block $address
-    then
-      mark_blocked $address
-    else
-      # iptables might be in use, do not mark as blocked, try again next time
-      log block $address failed
-    fi
+  if block $address
+  then
+    mark_blocked $address
+  else
+    # iptables might be in use, do not mark as blocked, try again next time
+    log block $address failed
   fi
 done
