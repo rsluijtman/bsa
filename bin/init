@@ -11,35 +11,6 @@ adminmail=rws@sluijtman.nl
 # path/$prog/bin
 #           /log
 
-rx='^(.+)/bin$'
-if [[ ${path:-.} =~ $rx ]]
-then
-  basedir=${BASH_REMATCH[1]}
-  bindir=$basedir/bin
-else
-  name=$0
-  if cmp ../bin/$name $name
-  then
-    basedir=..
-    bindir=../bin
-  else
-    echo could not find bindir
-    exit 1
-  fi
-fi
-
-dbdir=$basedir/db
-blkdir=$dbdir/blocked
-ntdir=$dbdir/noted
-
-for dir in $dbdir $logdir $blkdir
-do
-  [ -d $dir ] || mkdir -p $dir
-done
-
-hostname=$(hostname)
-hostname=${hostname%%.*}
-
 pathto(){
   c=$1
   p=$(type -p $c)
@@ -63,6 +34,54 @@ pathto(){
     exit 1
   fi
 }
-ip=$(pathto ip)
-iptables=$(pathto iptables)
 
+
+rx='^(.+)/bin$'
+if [[ ${path:-.} =~ $rx ]]
+then
+  basedir=${BASH_REMATCH[1]}
+  bindir=$basedir/bin
+else
+  name=$0
+  if cmp ../bin/$name $name
+  then
+    basedir=..
+    bindir=../bin
+  else
+    echo could not find bindir
+    exit 1
+  fi
+fi
+
+if [ -f $basedir/cache ]
+then
+  . $basedir/cache
+else
+    
+  dbdir=$basedir/db
+  ntdir=$dbdir/noted
+  initdir=$basedir/init
+  
+  for dir in $dbdir $logdir $blkdir
+  do
+    [ -d $dir ] || mkdir -p $dir
+  done
+  
+  hostname=$(hostname)
+  hostname=${hostname%%.*}
+  
+  ip=$(pathto ip)
+  iptables=$(pathto iptables)
+  egrep=$(pathto egrep)
+
+  cat << EOF > $basedir/cache
+  dbdir=$dbdir
+  ntdir=$ntdir
+  bindir=$bindir
+  initdir=$initdir
+  hostname=$hostname
+  ip=$ip
+  iptables=$iptables
+  egrep=$egrep
+EOF
+fi
