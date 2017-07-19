@@ -29,6 +29,9 @@ EOF
 
 }
 
+# firewall command, delete or append address
+# $1: action, append or delete
+# $2: address
 fwcmd(){
   action=$1
   address=$2
@@ -45,11 +48,13 @@ fwcmd(){
   return $res
 }
 
+# $1: ip address to block
 block(){
   fwcmd append $1
   return $?
 }
 
+# $1: ip address to unblock
 unblock(){
   fwcmd delete $1
   return $?
