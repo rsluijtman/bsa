@@ -19,6 +19,7 @@ else
   blocked=0
   ipt=0
   diff=0
+  noted=0
   nsort=0
   tsort=0
 fi
@@ -41,7 +42,7 @@ do
          ;;
       i) ipt=1
          ;;
-      n) nsort=1
+      n) noted=1
          ;;
       t) tsort=1
          ;;
@@ -58,13 +59,20 @@ cd $ntdir
 needborder=0
 border='======================================='
 
+# b: noted blocked
 declare -A b
-if [ "$blocked" = 1 -o $all = 1 ]
+# n: only noted
+declare -A n
+if [ "$blocked" = 1 -o "$noted" = 1  -o $all = 1 ]
 then
-  for a in */blocked
+  for a in *
   do
-    t=${a%/blocked}
-    b[$t]=$(stat --printf %Y $a)
+    if [ -f $a/blocked ]
+    then
+      b[$a]=$(stat --printf %Y $a/blocked)
+    else
+      n[$a]=$(stat --printf %Y $a)
+    fi
   done
   echo marked blocked
   ls -d ${!b[@]}
@@ -72,6 +80,7 @@ then
 
 fi
 
+# i: from iptables
 declare -A i
 if [ "$ipt" = 1 -o $all = 1 ]
 then
@@ -126,12 +135,13 @@ then
     fi
   done
 fi
+
 if [ $output = 1 ]
 then
   needborder=1
 fi
 
-if [ "$nsort" = 1 -o "$all" = 1 ]
+if [ "$noted" = 1 -o "$nsort" = 1 -o "$all" = 1 ]
 then
 
   if [ $needborder = 1 ]
@@ -143,25 +153,51 @@ then
   for a in *
   do
     [ -f $a/blocked ] && continue
+#    n[$a]=$(stat --printf %Y $a)
     for t in $a/a*
     do
       echo ${t%/*}
     done
   done | uniq -c | sort -n
-
+ 
   echo $border
-
-  echo blocked
-  for a in */blocked
-  do
-    t=${a%/*}
-    for j in $t/a*
-    do
-      echo ${j%/*}
-    done
-  done | uniq -c | sort -n
-  needborder=1
+  needborder=0
 fi
+
+if [ "$tsort" = 1 -a "$noted" = 1  -o "$all" = 1 ]
+then
+  if [ $needborder = 1 ]
+  then
+    echo $border
+    needborder=0
+  fi
+  printf "%-16s    %s\n" "address" "noted on"
+  for k in ${!n[*]}
+  do
+    echo ${n[$k]} $k
+  done | sort -n | while read t a 
+    do
+      printf "%-16s    %s\n" $a "$( date -d @$t )"
+    done
+fi
+needborder=1
+if [ $needborder = 1 ]
+then
+  echo $border
+  needborder=0
+fi
+############
+ 
+echo blocked
+for a in */blocked
+do
+  t=${a%/*}
+  for j in $t/a*
+  do
+    echo ${j%/*}
+  done
+done | uniq -c | sort -n
+needborder=1
 
 if [ "$tsort" = 1 -a "$blocked" = 1  -o "$all" = 1 ]
 then
