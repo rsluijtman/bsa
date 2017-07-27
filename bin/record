@@ -157,5 +157,7 @@ listallowed(){
 allowed(){
   a=$1
   [ -z "$a" ] && { log allowed address cannot be empty ; return 1 ; }
-  return -f $wldir/$a
+ 
+  [ -f $wldir/$a ]
+  return $?
 }

@@ -50,6 +50,9 @@ fwcmd(){
 
 # $1: ip address to block
 block(){
+  a=$1
+  allowed $a && { log $a allowed, not blocking ; return 1 ; }
+
   fwcmd append $1
   return $?
 }
