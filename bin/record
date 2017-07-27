@@ -134,3 +134,28 @@ remove_blocked(){
     log rm $address failed
   fi
 }
+
+
+whitelist(){
+  a=$1
+  touch $wldir/$a
+  if [ ! $? = 0 ]
+  then
+    log touch $wldir/$a failed
+  fi
+}
+
+
+listallowed(){
+  for a in $wldir/*
+  do
+    a=${a##*/}
+    echo $a
+  done
+}
+
+allowed(){
+  a=$1
+  [ -z "$a" ] && { log allowed address cannot be empty ; return 1 ; }
+  return -f $wldir/$a
+}
