@@ -1,0 +1,15 @@
+#!/bin/bash
+
+path=$(type -p $0)
+path=${path%/*}
+
+. $path/init
+. $bindir/loglib
+. $bindir/record
+
+if [ -n "$1" ]
+then
+  whitelist $1
+else
+  listallowed
+fi
