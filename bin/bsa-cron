@@ -16,6 +16,6 @@ fi
 
 . $path/init
 
-. $path/checkfw
+. $bindir/checkfw
 
-. $path/action
+. $bindir/action
