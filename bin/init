@@ -57,33 +57,38 @@ if [ -f $basedir/cache ]
 then
   . $basedir/cache
 else
-    
+
   dbdir=$basedir/db
   ntdir=$dbdir/noted
   wldir=$dbdir/allow
   initdir=$basedir/init
-  
+
   for dir in $dbdir $logdir $blkdir $wldir
   do
     [ -d $dir ] || mkdir -p $dir
   done
-  
+
   hostname=$(hostname)
   hostname=${hostname%%.*}
-  
+
   ip=$(pathto ip)
   iptables=$(pathto iptables)
   egrep=$(pathto egrep)
 
-  cat << EOF > $basedir/cache
-  dbdir=$dbdir
-  ntdir=$ntdir
-  wldir=$wldir
-  bindir=$bindir
-  initdir=$initdir
-  hostname=$hostname
-  ip=$ip
-  iptables=$iptables
-  egrep=$egrep
+# write cache only if paths are absolute
+
+  if [[ $bindir =~ ^/ ]]
+  then
+    cat << EOF > $basedir/cache
+dbdir=$dbdir
+ntdir=$ntdir
+wldir=$wldir
+bindir=$bindir
+initdir=$initdir
+hostname=$hostname
+ip=$ip
+iptables=$iptables
+egrep=$egrep
 EOF
+  fi
 fi
