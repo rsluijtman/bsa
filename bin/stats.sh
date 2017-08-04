@@ -2,8 +2,16 @@
 
 usage(){
   echo $program -bdhint
+  echo -b: blocked acording db
+  echo -d: show diff between db and iptables
+  echo -h: this help
+  echo -i: blocked by iptables
+  echo -n: noted addresses
+  echo -q: questionable
+  echo -t: sorted by time
   exit 0
 }
+
 
 path=$(type -p $0)
 path=${path%/*}
@@ -22,6 +30,7 @@ else
   noted=0
   nsort=0
   tsort=0
+  quest=0
 fi
 
 rx='^-*(.)(.*)$'
@@ -43,6 +52,8 @@ do
       i) ipt=1
          ;;
       n) noted=1
+         ;;
+      q) quest=1 
          ;;
       t) tsort=1
          ;;
@@ -115,7 +126,7 @@ then
       then
         echo $border
         needborder=0
-      fi 
+      fi
       echo $a not in iptables
       output=1
     fi
@@ -129,7 +140,7 @@ then
       then
         echo $border
         needborder=0
-      fi 
+      fi
       echo $j not marked blocked
       output=1
     fi
@@ -147,7 +158,6 @@ then
   if [ $needborder = 1 ]
   then
     echo $border
-    needborder=0
   fi
   echo noted
   for a in *
@@ -159,9 +169,7 @@ then
       echo ${t%/*}
     done
   done | uniq -c | sort -n
- 
-  echo $border
-  needborder=0
+  needborder=1
 fi
 
 if [ "$tsort" = 1 -a "$noted" = 1  -o "$all" = 1 ]
@@ -169,25 +177,21 @@ then
   if [ $needborder = 1 ]
   then
     echo $border
-    needborder=0
   fi
   printf "%-16s    %s\n" "address" "noted on"
   for k in ${!n[*]}
   do
     echo ${n[$k]} $k
-  done | sort -n | while read t a 
+  done | sort -n | while read t a
     do
       printf "%-16s    %s\n" $a "$( date -d @$t )"
     done
-fi
-needborder=1
-if [ $needborder = 1 ]
-then
+
   echo $border
-  needborder=0
 fi
+
 ############
- 
+
 echo blocked
 for a in */blocked
 do
@@ -201,19 +205,52 @@ needborder=1
 
 if [ "$tsort" = 1 -a "$blocked" = 1  -o "$all" = 1 ]
 then
-  if [ $needborder = 1 ]
-  then
-    echo $border
-    needborder=0
-  fi
-  #ls -dt ${!b[@]}
+  echo $border
+
   printf "%-16s    %s\n" "address" "blocked on"
   for k in ${!b[*]}
   do
     echo ${b[$k]} $k
-  done | sort -n | while read t a 
+  done | sort -n | while read t a
     do
       printf "%-16s    %s\n" $a "$( date -d @$t )"
     done
- 
+
+fi
+
+if [ "$quest" = 1 -o "$all" = 1 ]
+then
+  echo $border
+
+  # show address, time blocked, number of times noted after blocked, last time noted
+  cd $ntdir 
+  for a in */b*
+  do
+    d=${a%/b*}
+    cd $d
+    n=$(ls -rt)
+    set $n
+    while [ $# -gt 1 ]
+    do
+      i=$1
+      shift
+      if [[ $i =~ ^b ]]
+      then
+        tb=$(stat --printf %Y $i)
+        tbs="$(date -d @$tb)"
+        m=$#
+        while [ $# -gt 0 ]
+        do
+          e=$1
+          shift # find last entry for time
+        done
+        et=$(stat --printf %Y $e)
+        dt=$((et-tb))       
+
+        printf "%-16s %3d %6ds   %s\n" $d $m $dt "$(date -d @$et +"%y-%m-%d %H:%M")"
+        break
+      fi
+    done
+    cd ..
+  done
 fi
