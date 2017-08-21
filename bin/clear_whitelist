@@ -1,0 +1,23 @@
+#!/bin/bash
+
+path=$(type -p $0)
+path=${path%/*}
+
+. $path/init
+. $bindir/loglib
+
+trap logfinish 0
+
+log $prog
+
+really=1
+
+if [ "$1" = '-n' ]
+then
+  really=0
+fi
+
+cd $wldir || { log fatal: no wldir $wldir, exiting ; exit 1 ; }
+
+# how long should these be remembered?
+find . -ctime +14 -exec rm {} \;
