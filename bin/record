@@ -138,11 +138,14 @@ remove_blocked(){
 
 whitelist(){
   a=$1
+  mask=$(umask)
+  umask 0111
   touch $wldir/$a
   if [ ! $? = 0 ]
   then
     log touch $wldir/$a failed
   fi
+  umask $mask
 }
 
 
