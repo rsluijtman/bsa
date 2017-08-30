@@ -247,7 +247,7 @@ then
         et=$(stat --printf %Y $e)
         dt=$((et-tb))       
 
-        printf "%-16s %3d %6ds   %s\n" $d $m $dt "$(date -d @$et +"%y-%m-%d %H:%M")"
+        printf "%-16s %3d %6ds   %s\n" $d $m $dt "$(date -d @$et +"%Y-%m-%d %H:%M")"
         break
       fi
     done
