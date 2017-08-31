@@ -36,12 +36,13 @@ start() {
 
   # ssh, first rule jumps to ssh chain, were ssh-attackers are blocked.
   # if the address is not there, processing returns here
-  $iptables --append INPUT --proto tcp --destination-port 22 --in-interface $ext --jump ssh
-  # second ssh rule, if the previous did not block it, accept it now
-  $iptables --append INPUT --proto tcp --destination-port 22 --in-interface $ext --jump ACCEPT
-  # same for 443
-  $iptables --append INPUT --proto tcp --destination-port 443 --in-interface $ext --jump ssh
-  $iptables --append INPUT --proto tcp --destination-port 443 --in-interface $ext --jump ACCEPT
+  sshports='22 443 2222'
+  for port in $sshports
+  do
+    $iptables --append INPUT --proto tcp --destination-port $port --in-interface $ext --jump ssh
+    # second ssh rule, if the previous did not block it, accept it now
+    $iptables --append INPUT --proto tcp --destination-port $port --in-interface $ext --jump ACCEPT
+  done
   RETVAL=0
 }
 
