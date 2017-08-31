@@ -192,17 +192,20 @@ fi
 
 ############
 
-echo blocked
-for a in */blocked
-do
-  t=${a%/*}
-  for j in $t/a*
+if [ "$blocked" = 1 -o "$all" = 1 ]
+then
+  echo blocked
+  for a in */blocked
   do
-    echo ${j%/*}
-  done
-done | uniq -c | sort -n
-needborder=1
-
+    t=${a%/*}
+    for j in $t/a*
+    do
+      echo ${j%/*}
+    done
+  done | uniq -c | sort -n
+  needborder=1
+fi
+  
 if [ "$tsort" = 1 -a "$blocked" = 1  -o "$all" = 1 ]
 then
   echo $border
@@ -224,33 +227,28 @@ then
 
   # show address, time blocked, number of times noted after blocked, last time noted
   cd $ntdir 
-  for a in */b*
+  declare -a names # declare array
+  for a in */blocked
   do
     d=${a%/b*}
     cd $d
-    n=$(ls -rt)
-    set $n
-    while [ $# -gt 1 ]
-    do
-      i=$1
-      shift
-      if [[ $i =~ ^b ]]
-      then
-        tb=$(stat --printf %Y $i)
-        tbs="$(date -d @$tb)"
-        m=$#
-        while [ $# -gt 0 ]
-        do
-          e=$1
-          shift # find last entry for time
-        done
-        et=$(stat --printf %Y $e)
-        dt=$((et-tb))       
+    names=($(ls -t))
+    top=$((n-1))
+    last=${names[0]}
+    if [ $last != blocked ]
+    then
+      et=$(stat --printf %Y $last)
+      tb=$(stat --printf %Y blocked)
+      dt=$((et-tb))       
+      # number of tmes noted after blocked:
 
-        printf "%-16s %3d %6ds   %s\n" $d $m $dt "$(date -d @$et +"%Y-%m-%d %H:%M")"
-        break
-      fi
-    done
+      for (( i=0 ; i<${#names[*]};i++ ))
+      do
+        [ ${names[$i]} = blocked ] && break
+      done
+     
+      printf "%-16s %3d %6ds   %s\n" $d $i $dt "$(date -d @$et +"%Y-%m-%d %H:%M")"
+    fi
     cd ..
   done
 fi
