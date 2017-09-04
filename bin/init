@@ -59,11 +59,13 @@ then
 else
 
   dbdir=$basedir/db
+  initdir=$basedir/init
+  logdir=$basedir/log
   ntdir=$dbdir/noted
   wldir=$dbdir/allow
-  initdir=$basedir/init
+  logfile=$logdir/$prog.log
 
-  for dir in $dbdir $logdir $blkdir $wldir
+  for dir in $dbdir $logdir $wldir
   do
     [ -d $dir ] || mkdir -p $dir
   done
@@ -80,11 +82,12 @@ else
   if [[ $bindir =~ ^/ ]]
   then
     cat << EOF > $basedir/cache
+bindir=$bindir
 dbdir=$dbdir
+initdir=$initdir
 ntdir=$ntdir
 wldir=$wldir
-bindir=$bindir
-initdir=$initdir
+logfile=$logdir/$prog.log
 hostname=$hostname
 ip=$ip
 iptables=$iptables
