@@ -10,11 +10,7 @@ then
 fi
 . $path/init
 
-if [ -t 0 ]
-then
-  exec >> $logfile
-fi
-
+[ -t 0 ] || exec >> $logfile
 exec 2>&1
 
 prev=
