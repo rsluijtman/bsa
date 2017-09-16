@@ -54,7 +54,7 @@ fi
 bindir=$basedir/bin
 
 # update neededcacheversion when contents is changed!
-neededcacheversion=1.1
+neededcacheversion=1.2
 cacheversion=
 if [ -f $basedir/cache ]
 then
@@ -69,7 +69,6 @@ then
   logdir=$basedir/log
   ntdir=$dbdir/noted
   wldir=$dbdir/allow
-  logfile=$logdir/$prog.log
 
   for dir in $dbdir $logdir $wldir
   do
@@ -96,7 +95,7 @@ dbdir=$dbdir
 initdir=$initdir
 ntdir=$ntdir
 wldir=$wldir
-logfile=$logfile
+logdir=$logdir
 hostname=$hostname
 ip=$ip
 iptables=$iptables
@@ -105,3 +104,5 @@ EOF
     umask $mask
   fi
 fi
+
+logfile=$logdir/$prog.log
