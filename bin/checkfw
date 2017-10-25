@@ -5,6 +5,8 @@
 
 
 initdir=$basedir/init
+
+# contains get_ext
 . $path/block
 
 ext=$(get_ext)
@@ -13,6 +15,8 @@ ext=$(get_ext)
 
 if ! $iptables -nL INPUT | $egrep -q '^ssh' 
 then
+  # no blocks are present, so remove noted/*/blocked files
+  find $ntdir -name blocked -exec rm {} \;
   echo $0: configuring iptables for bsa
   $initdir/firewall start
   $initdir/filterrules start
