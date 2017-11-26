@@ -1,5 +1,9 @@
 #!/bin/bash
 
+rmlock(){
+ rm /tmp/cron-bsa-running
+}
+
 exec >> /tmp/bsa-cron.log
 exec 2>&1
 echo '======================'
@@ -16,6 +20,17 @@ fi
 
 . $path/init
 
+if [ -f /tmp/cron-bsa-running ]
+then
+  echo already running
+  exit 0
+fi
+touch /tmp/cron-bsa-running
+ 
+trap rmlock 0
+
 . $bindir/checkfw
 
 . $bindir/action
+
+
