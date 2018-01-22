@@ -3,8 +3,8 @@
 # chkconfig: 345 9 91
 # description: inserts filterrules
 
-ip=/usr/sbin/ip
-iptables=/usr/sbin/iptables
+ip=/sbin/ip
+iptables=/sbin/iptables
 
 get_ext(){
   set -- $($ip route list |grep default)

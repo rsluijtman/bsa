@@ -3,7 +3,7 @@
 # chkconfig: 345 8 92
 # description: starts firewall
 
-iptables=/usr/sbin/iptables
+iptables=/sbin/iptables
 
 start() {
   stop
