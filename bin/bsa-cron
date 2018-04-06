@@ -1,8 +1,6 @@
 #!/bin/bash
 
-<<<<<<< HEAD
-=======
- lock=/tmp/cron-bsa-running
+lock=/tmp/cron-bsa-running
 
 rmlock(){
  echo removing lock
@@ -16,7 +14,6 @@ rmlock(){
  fi
 }
 
->>>>>>> 2610234d57ce8440926e00f5a4d01d4053b0fc38
 if [ ! -t 0 ]
 then
  exec >> /tmp/bsa-cron.log
