@@ -38,6 +38,7 @@ do
   while read line
   do
     [[ $line =~ $sshrx ]] || continue # { log "no match sshd rx"; continue ; }
+    #[[ $line =~ $sshrx ]] ||  { log "no match sshd rx: $line"; continue ; }
     log $line
     sshpid=${BASH_REMATCH[1]}
   
