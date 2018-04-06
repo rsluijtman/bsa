@@ -22,7 +22,7 @@ testres(){
   log failed command:
   log cmd: $cmd
 
-  cat << EOF | mail -s 'cmd failed' $adminmail
+  cat << EOF >> /tmp/bsa-fail-log # | mail -s 'cmd failed' $adminmail
 $(date)
 $cmd
 EOF
