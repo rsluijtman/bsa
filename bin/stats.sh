@@ -65,7 +65,6 @@ do
 
 done
 
-cd $ntdir
 
 needborder=0
 border='======================================='
@@ -76,6 +75,7 @@ declare -A b
 declare -A n
 if [ "$blocked" = 1 -o "$noted" = 1  -o $all = 1 ]
 then
+  cd $ntdir
   for a in *
   do
     if [ -f $a/blocked ]

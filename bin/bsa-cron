@@ -1,5 +1,22 @@
 #!/bin/bash
 
+<<<<<<< HEAD
+=======
+ lock=/tmp/cron-bsa-running
+
+rmlock(){
+ echo removing lock
+ if [ -f $lock ]
+ then
+  rm $lock
+  res=$?
+  echo  result of rm: $res
+ else
+  echo no lock 
+ fi
+}
+
+>>>>>>> 2610234d57ce8440926e00f5a4d01d4053b0fc38
 if [ ! -t 0 ]
 then
  exec >> /tmp/bsa-cron.log
@@ -19,6 +36,18 @@ fi
 
 . $path/init
 
+if [ -f $lock ]
+then
+  echo already running
+  exit 0
+fi
+touch $lock
+ 
+trap rmlock 0
+
 . $bindir/checkfw
 
 . $bindir/action
+
+#trap -p 0 2>&1
+#rmlock

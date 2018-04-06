@@ -40,30 +40,37 @@ rx='^(.+)/bin$'
 if [[ ${path:-.} =~ $rx ]]
 then
   basedir=${BASH_REMATCH[1]}
-  bindir=$basedir/bin
 else
   name=$0
   if cmp ../bin/$name $name
   then
     basedir=..
-    bindir=../bin
   else
-    echo could not find bindir
+    echo could not find basedir
     exit 1
   fi
 fi
 
+bindir=$basedir/bin
+
+# update neededcacheversion when contents is changed!
+neededcacheversion=1.2
+cacheversion=
 if [ -f $basedir/cache ]
 then
   . $basedir/cache
-else
+fi
 
+if [ "$cacheversion" != $neededcacheversion ]
+then
+  cacheversion=$neededcacheversion
   dbdir=$basedir/db
+  initdir=$basedir/init
+  logdir=$basedir/log
   ntdir=$dbdir/noted
   wldir=$dbdir/allow
-  initdir=$basedir/init
 
-  for dir in $dbdir $logdir $blkdir $wldir
+  for dir in $dbdir $logdir $wldir
   do
     [ -d $dir ] || mkdir -p $dir
   done
@@ -77,18 +84,25 @@ else
 
 # write cache only if paths are absolute
 
-  if [[ $bindir =~ ^/ ]]
+  if [[ $basedir =~ ^/ ]]
   then
+    mask=$(umask)
+    umask 0111
     cat << EOF > $basedir/cache
+cacheversion=$cacheversion
+bindir=$bindir
 dbdir=$dbdir
+initdir=$initdir
 ntdir=$ntdir
 wldir=$wldir
-bindir=$bindir
-initdir=$initdir
+logdir=$logdir
 hostname=$hostname
 ip=$ip
 iptables=$iptables
 egrep=$egrep
 EOF
+    umask $mask
   fi
 fi
+
+logfile=$logdir/$prog.log

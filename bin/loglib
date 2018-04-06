@@ -10,9 +10,6 @@ then
 fi
 . $path/init
 
-logdir=$basedir/log
-[ -d $logdir ] || mkdir $logdir
-logfile=$logdir/$prog.log
 [ -t 0 ] || exec >> $logfile
 exec 2>&1
 
