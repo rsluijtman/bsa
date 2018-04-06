@@ -14,10 +14,13 @@ rmlock(){
  fi
 }
 
-exec >> /tmp/bsa-cron.log
-exec 2>&1
-echo '======================'
-date
+if [ ! -t 0 ]
+then
+ exec >> /tmp/bsa-cron.log
+ exec 2>&1
+ echo '======================'
+ date
+fi
 
 path=$(type -p $0)
 path=${path%/*}
