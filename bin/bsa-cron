@@ -1,6 +1,6 @@
 #!/bin/bash
 
- lock=/tmp/cron-bsa-running
+lock=/tmp/cron-bsa-running
 
 rmlock(){
  echo removing lock
