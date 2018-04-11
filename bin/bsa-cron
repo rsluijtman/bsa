@@ -1,6 +1,6 @@
 #!/bin/bash
 
-lock=/tmp/cron-bsa-running
+lock=/tmp/bsa-cron-running
 
 rmlock(){
  echo removing lock
@@ -35,10 +35,20 @@ fi
 
 if [ -f $lock ]
 then
-  echo already running
-  exit 0
+  echo $lock exists
+  pid=$(cat $lock)
+  echo pid: $pid
+  ps=$(ps --no-headers -p $pid -o stime,args)
+  if [ -n "$ps" ]
+  then
+   echo $ps
+   exit 0
+  else
+   echo no process for $pid
+   rm $lock  
+  fi
 fi
-touch $lock
+echo $$ > $lock
  
 trap rmlock 0
 
@@ -47,4 +57,4 @@ trap rmlock 0
 . $bindir/action
 
 #trap -p 0 2>&1
-#rmlock
+rmlock
