@@ -3,6 +3,7 @@
 usage(){
   echo $program -bdhint
   echo -b: blocked acording db
+  echo -c: count blocked and noted 
   echo -d: show diff between db and iptables
   echo -h: this help
   echo -i: blocked by iptables
@@ -44,6 +45,8 @@ do
     param=${BASH_REMATCH[2]}
     case $opt in
       b) blocked=1
+         ;;
+      c) count=1
          ;;
       d) diff=1
          ;;
@@ -251,4 +254,18 @@ then
     fi
     cd ..
   done
+fi
+
+if [ "$count" = 1 -o "$all" = 1 ]
+then
+  echo $border
+  cd $ntdir
+  a=$(ls *|wc -l)
+  b=$(ls */b*| wc -l)
+  n=$((a-b))
+  cd $dbdir
+  a=$(ls allow/*|wc -l)
+  printf "%-14s %5d\n" blocked: $b
+  printf "%-14s %5d\n" noted: $n
+  printf "%-14s %5d\n" allowed: $a
 fi
