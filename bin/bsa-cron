@@ -1,0 +1,60 @@
+#!/bin/bash
+
+lock=/tmp/bsa-cron-running
+
+rmlock(){
+ echo removing lock
+ if [ -f $lock ]
+ then
+  rm $lock
+  res=$?
+  echo  result of rm: $res
+ else
+  echo no lock 
+ fi
+}
+
+if [ ! -t 0 ]
+then
+ exec >> /tmp/bsa-cron.log
+ exec 2>&1
+ echo '======================'
+ date
+fi
+
+path=$(type -p $0)
+path=${path%/*}
+
+if [ -z "$path" -o ! -d "$path" ]
+then
+  echo could not find working dir
+  exit 1
+fi
+
+. $path/init
+
+if [ -f $lock ]
+then
+  echo $lock exists
+  pid=$(cat $lock)
+  echo pid: $pid
+  ps=$(ps --no-headers -p $pid -o stime,args)
+  if [ -n "$ps" ]
+  then
+   echo $ps
+   exit 0
+  else
+   echo no process for $pid
+   rm $lock  
+  fi
+fi
+echo $$ > $lock
+ 
+trap rmlock 0
+
+. $bindir/checkfw
+
+. $bindir/action
+
+#trap -p 0 2>&1
+rmlock
