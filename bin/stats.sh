@@ -268,4 +268,6 @@ then
   printf "%-14s %5d\n" blocked: $b
   printf "%-14s %5d\n" noted: $n
   printf "%-14s %5d\n" allowed: $a
+  printf "blocked noted allowed\n"
+  printf "%7d %5d %5d\n" $b $n $a 
 fi
