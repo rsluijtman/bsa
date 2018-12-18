@@ -62,3 +62,25 @@ unblock(){
   fwcmd delete $1
   return $?
 }
+
+
+reload() {
+  if [ "$1" = '-n' ]
+  then
+    really=0
+  else
+    really=1
+  fi
+  cd $ntdir
+  for d in */blocked
+  do
+    [ -f $d ] || continue
+    a=${d%%/*}
+    if [ $really = 1 ]
+    then
+      block $a
+    else
+      echo not really block $a
+    fi
+  done
+} 

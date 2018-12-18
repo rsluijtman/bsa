@@ -12,10 +12,8 @@ ext=$(get_ext)
 
 if ! $iptables -nL INPUT | $egrep -q '^ssh' 
 then
-  # no blocks are present, so remove noted/*/blocked files
-  #find $ntdir -name blocked -exec rm {} \;
-  find $ntdir -name blocked | xargs rm -f 
   echo $0: configuring iptables for bsa
   $initdir/firewall start
   $initdir/filterrules start
+  reload  
 fi
