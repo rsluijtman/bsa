@@ -260,8 +260,8 @@ if [ "$count" = 1 -o "$all" = 1 ]
 then
   echo $border
   cd $ntdir
-  a=$(ls *|wc -l)
-  b=$(ls */b*| wc -l)
+  a=$(ls | wc -l)
+  b=$(ls */b* | wc -l)
   n=$((a-b))
   cd $dbdir
   a=$(ls allow/*|wc -l)
