@@ -36,7 +36,8 @@ start() {
 
   # ssh, first rule jumps to ssh chain, were ssh-attackers are blocked.
   # if the address is not there, processing returns here
-  sshports='22 443 2222'
+  #sshports='22 443 2222'
+  sshports=22
   for port in $sshports
   do
     $iptables --append INPUT --proto tcp --destination-port $port --in-interface $ext --jump ssh
