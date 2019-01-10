@@ -1,0 +1,4 @@
+#* * * * * root /usr/local/bsa/bin/action
+* * * * * root /usr/local/bsa/bin/bsa-cron
+2 2 * * * root /usr/local/bsa/bin/rm_addresses
+3 3 * * * root /usr/local/bsa/bin/clear_whitelist
