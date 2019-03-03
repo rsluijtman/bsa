@@ -15,10 +15,11 @@ fi
 
 maxtries=5
 
-for address in $(noted_more_than $maxtries)
-do
 . $bindir/block
 . $bindir/loglib
+
+for address in $(noted_more_than $maxtries)
+do
   if block $address
   then
     mark_blocked $address
