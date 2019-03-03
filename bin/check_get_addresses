@@ -15,8 +15,7 @@ check_get_addresses(){
     chmod a+rw $fifo
   fi
   
-  exec < $fifo
-  exec /usr/local/bsa/bin/get_addresses
+  ( exec /usr/local/bsa/bin/get_addresses < $fifo  )&
 }
 
 date
