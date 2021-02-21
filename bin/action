@@ -17,8 +17,8 @@ maxtries=5
 
 for address in $(noted_more_than $maxtries)
 do
-. $bindir/block
 . $bindir/loglib
+. $bindir/block
   if block $address
   then
     mark_blocked $address
