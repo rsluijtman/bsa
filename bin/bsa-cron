@@ -53,6 +53,7 @@ echo $$ > $lock
 trap rmlock 0
 
 . $bindir/checkfw
+. $bindir/check_get_addresses
 
 . $bindir/action
 

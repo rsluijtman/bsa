@@ -1,0 +1,31 @@
+#!/bin/bash
+
+check_get_addresses(){
+  [ -n "$( ps -u root -o args | awk '!/awk/ && /get_addresses/' )" ] && return 0
+
+  fifo=/tmp/bsafifo
+  
+  if [  ! -p $fifo ]
+  then
+    if ! mkfifo $fifo 
+    then
+      echo mkfifo failed
+      exit 1
+    fi
+    chmod a+rw $fifo
+  fi
+  
+  ( exec /usr/local/bsa/bin/get_addresses < $fifo  )&
+}
+
+date
+
+atexit(){
+ date
+ echo exit
+}
+
+trap atexit 0
+
+check_get_addresses
+
