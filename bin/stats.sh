@@ -7,6 +7,7 @@ usage(){
   echo -d: show diff between db and iptables
   echo -h: this help
   echo -i: blocked by iptables
+  echo -l: count blocked and noted long format
   echo -n: noted addresses
   echo -q: questionable
   echo -t: sorted by time
@@ -26,12 +27,15 @@ then
 else
   all=0
   blocked=0
+  count=0
   ipt=0
   diff=0
+  longcount=0
   noted=0
   nsort=0
   tsort=0
   quest=0
+  cols=
 fi
 
 rx='^-*(.)(.*)$'
@@ -48,11 +52,16 @@ do
          ;;
       c) count=1
          ;;
+      C) cols='-C'
+         all=1
+         ;;
       d) diff=1
          ;;
       h) usage
          ;;
       i) ipt=1
+         ;;
+      l) longcount=1
          ;;
       n) noted=1
          ;;
@@ -89,7 +98,7 @@ then
     fi
   done
   echo marked blocked
-  ls -d ${!b[@]}
+  ls $cols -d ${!b[@]}
   needborder=1
 
 fi
@@ -113,7 +122,7 @@ then
     needborder=0
   fi
   echo in iptables
-  ls -d ${!i[@]}
+  ls $cols -d ${!i[@]}
   needborder=1
 fi
 
@@ -256,18 +265,23 @@ then
   done
 fi
 
-if [ "$count" = 1 -o "$all" = 1 ]
+if [ "$count" = 1 -o "$all" = 1 -o "$longcount" = 1 ]
 then
-  echo $border
+  [ $all = 1 ] && echo $border
   cd $ntdir
   a=$(ls | wc -l)
   b=$(ls */b* | wc -l)
   n=$((a-b))
   cd $dbdir
-  a=$(ls allow/*|wc -l)
-  printf "%-14s %5d\n" blocked: $b
-  printf "%-14s %5d\n" noted: $n
-  printf "%-14s %5d\n" allowed: $a
-  printf "blocked noted allowed\n"
-  printf "%7d %5d %5d\n" $b $n $a 
+  a=$(ls allow/* 2>/dev/null|wc -l)
+  if [ "$longcount" = 1 -o "$all" = 1 ]
+  then
+    printf "%-14s %5d\n" blocked: $b
+    printf "%-14s %5d\n" noted: $n
+    printf "%-14s %5d\n" allowed: $a
+  elif [ "$count" = 1 -o "$all" = 1 ]
+  then
+    [ "$all" = 1 ] && printf "blocked noted allowed\n"
+    printf "%7d %5d %5d\n" $b $n $a 
+  fi
 fi
