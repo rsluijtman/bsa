@@ -1,6 +1,9 @@
 [ -n "$_block_" ] && return
 _block_=1
 
+. $bindir/loglib
+. $bindir/record
+
 get_ext(){
   set -- $($ip route list | grep default)
   if [ "$1" = default ]
